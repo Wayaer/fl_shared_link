@@ -163,7 +163,6 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         if (inputStream != null) {
             var read: Int
             val buffer = ByteArray(8 * 1024)
-            //自己定义拷贝文件路径
             targetFile = File(context.externalCacheDir, fileName)
             if (targetFile.exists()) {
                 targetFile.delete()
