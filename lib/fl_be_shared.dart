@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+
 class FlBeShared {
-  final methodChannel = const MethodChannel('fl_be_shared');
+  final MethodChannel methodChannel = const MethodChannel('fl_be_shared');
 }

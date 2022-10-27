@@ -1,11 +1,11 @@
 name: fl_be_shared
-description: A new Flutter project.
+description: Make your app appear in someone else's share list and get the parameters to share it
 version: 0.0.1
-homepage:
+repository: https://github.com/Wayaer/fl_be_shared.git
 
 environment:
   sdk: '>=2.18.2 <3.0.0'
-  flutter: ">=2.5.0"
+  flutter: '>=2.5.0'
 
 dependencies:
   flutter:
@@ -20,7 +20,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: fl.be.shared.fl_be_shared
+        package: fl.be.shared
         pluginClass: FlBeSharedPlugin
       ios:
         pluginClass: FlBeSharedPlugin

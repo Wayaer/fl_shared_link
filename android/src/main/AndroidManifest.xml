@@ -1,3 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="fl.be.shared.fl_be_shared">
-</manifest>
+<manifest package="fl.be.shared" />
