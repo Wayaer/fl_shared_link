@@ -1,0 +1,26 @@
+name: fl_be_shared
+description: A new Flutter project.
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: '>=2.18.2 <3.0.0'
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.1
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: fl.be.shared.fl_be_shared
+        pluginClass: FlBeSharedPlugin
+      ios:
+        pluginClass: FlBeSharedPlugin
