@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -30,19 +29,17 @@ class FlBeShared {
   }
 
   /// [AndroidIntent] 中的 [data] 获取文件真是地址
-  Future<String?> getRealFilePathWithAndroid(String uri) async {
-    if (uri.isEmpty || !_isAndroid) return uri;
-    final data = await _channel.invokeMethod<String>('getRealFilePath', uri);
+  Future<String?> getRealFilePathWithAndroid() async {
+    final data = await _channel.invokeMethod<String>('getRealFilePath');
     debugPrint(data.toString());
     return data;
   }
 
   /// [AndroidIntent] 中的 [data] 获取文件真是地址
   /// 兼容微信和QQ
-  Future<String?> getRealFilePathCompatibleWXQQWithAndroid(String uri) async {
-    if (uri.isEmpty || !_isAndroid) return uri;
-    final data = await _channel.invokeMethod<String>(
-        'getRealFilePathCompatibleWXQQ', uri);
+  Future<String?> getRealFilePathCompatibleWXQQWithAndroid() async {
+    final data =
+        await _channel.invokeMethod<String>('getRealFilePathCompatibleWXQQ');
     debugPrint(data.toString());
     return data;
   }
@@ -58,6 +55,7 @@ class FlBeShared {
       if (call.method == "onIntent") {
         onAndroidIntent?.call(AndroidIntent.fromMap(call.arguments as Map));
       } else if (call.method == "onReceiveShared") {
+        debugPrint('onReceiveShared====');
         onReceiveShared?.call(AndroidIntent.fromMap(call.arguments as Map));
       }
     });

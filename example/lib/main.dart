@@ -81,22 +81,25 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 10),
           ValueListenableBuilder(
               valueListenable: realPath,
-              builder: (_, String? value, __) => Text(value ?? ''))
+              builder: (_, String? value, __) => Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.all(12),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.grey.withOpacity(0.3)),
+                  child: Text(value.toString()))),
+          const SizedBox(height: 30),
         ]);
   }
 
   void getRealFilePathWithAndroid() async {
-    final uri = receiveShared?.data;
-    if (uri != null && uri.isNotEmpty) {
-      realPath.value = await FlBeShared().getRealFilePathWithAndroid(uri);
-    }
+    realPath.value = await FlBeShared().getRealFilePathWithAndroid();
   }
 
   void getRealFilePathCompatibleWXQQWithAndroid() async {
-    final uri = receiveShared?.data;
-    if (uri != null && uri.isNotEmpty) {
-      realPath.value =
-          await FlBeShared().getRealFilePathCompatibleWXQQWithAndroid(uri);
-    }
+    realPath.value =
+        await FlBeShared().getRealFilePathCompatibleWXQQWithAndroid();
   }
 }
