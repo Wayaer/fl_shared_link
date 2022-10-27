@@ -33,12 +33,79 @@ Android 配置 (project/android/app/src/main/AndroidManifest.xml)
     <data android:mimeType="image/*" />
     <data android:mimeType="text/*" />
     <data android:mimeType="application/msword" />
-    <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+    <data
+        android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
     <data android:mimeType="application/vnd.ms-excel" />
     <data android:mimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
     <data android:mimeType="application/vnd.ms-powerpoint" />
-    <data android:mimeType="application/vnd.openxmlformats-officedocument.presentationml.presentation" />
+    <data
+        android:mimeType="application/vnd.openxmlformats-officedocument.presentationml.presentation" />
     <data android:mimeType="application/pdf" />
 </intent-filter>
 ```
 
+```plist
+
+<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+				<string>public.composite-content</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>PDF文档</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.adobe.pdf</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>pdf</string>
+				</array>
+				<key>public.mime-type</key>
+				<string>application/pdf</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Word文档</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.microsoft.word.doc</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>doc</string>
+					<string>docx</string>
+				</array>
+				<key>public.mime-type</key>
+				<string>application/msword</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Excel Document</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.microsoft.excel.xls</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>xls</string>
+				</array>
+				<key>public.mime-type</key>
+				<string>application/vnd.ms-excel</string>
+			</dict>
+		</dict>
+	</array>
+```
