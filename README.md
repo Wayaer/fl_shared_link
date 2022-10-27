@@ -1,6 +1,6 @@
 # fl_be_shared
 
-Android 配置
+Android 配置 (project/android/app/src/main/AndroidManifest.xml)
 
 ```xml
 <!-- 注册接收分享 -->
