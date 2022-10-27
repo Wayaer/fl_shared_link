@@ -19,6 +19,26 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- 注册接收分享 -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <!--接收打开的文件类型-->
+                <data android:mimeType="application/pdf" />
+            </intent-filter>
+
+            <!-- 注册默认打开事件，微信、QQ的其他应用打开 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+
+                <!-- 接收打开的文件类型 -->
+                <data android:mimeType="application/pdf" />
+            </intent-filter>
         </activity>
         <meta-data
             android:name="flutterEmbedding"
