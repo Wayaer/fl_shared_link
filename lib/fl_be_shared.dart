@@ -13,8 +13,8 @@ class FlBeShared {
   final MethodChannel _channel = const MethodChannel('fl_be_shared');
 
   /// 获取接收到的内容
-  Future<AndroidIntent?> get receiveData async {
-    final data = await _channel.invokeMapMethod('getReceiveData');
+  Future<AndroidIntent?> get receiveShared async {
+    final data = await _channel.invokeMapMethod('getReceiveShared');
     if (data != null) return AndroidIntent.fromMap(data);
     return null;
   }

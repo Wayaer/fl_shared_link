@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      receiveShared = await FlBeShared().receiveData;
+      receiveShared = await FlBeShared().receiveShared;
       androidIntent = await FlBeShared().androidIntent;
       setState(() {});
       FlBeShared().receiveHandler(onReceiveShared: (AndroidIntent? data) {

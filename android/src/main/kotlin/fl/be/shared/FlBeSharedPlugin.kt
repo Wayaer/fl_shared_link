@@ -36,7 +36,7 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "getIntent" -> result.success(intent?.map)
-            "getReceiveData" -> {
+            "getReceiveShared" -> {
                 val type = intent?.type
                 val action = intent?.action
                 if (type == null || Intent.ACTION_VIEW != action && Intent.ACTION_SEND != action) {
