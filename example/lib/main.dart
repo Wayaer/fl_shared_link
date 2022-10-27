@@ -10,7 +10,7 @@ void main() {
           body: Container(
               alignment: Alignment.center,
               padding: const EdgeInsets.all(20),
-              child: const HomePage()))));
+              child: const SingleChildScrollView(child: HomePage())))));
 }
 
 class HomePage extends StatefulWidget {
@@ -21,16 +21,23 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  ReceiveData? receiveData;
+  AndroidIntent? androidIntent;
+  AndroidIntent? receiveShared;
+
+  ValueNotifier<String?> realPath = ValueNotifier('');
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      receiveData = await FlBeShared().receiveData;
+      receiveShared = await FlBeShared().receiveData;
+      androidIntent = await FlBeShared().androidIntent;
       setState(() {});
-      FlBeShared().receiveHandler(receiveData: (ReceiveData? data) {
-        receiveData = data;
+      FlBeShared().receiveHandler(onReceiveShared: (AndroidIntent? data) {
+        receiveShared = data;
+        setState(() {});
+      }, onAndroidIntent: (AndroidIntent? data) {
+        androidIntent = data;
         setState(() {});
       });
     });
@@ -42,11 +49,54 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text('接收的数据'),
+          const Text('Android Intent'),
           const SizedBox(height: 10),
-          Text('data:\n ${receiveData?.data}'),
+          Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.all(12),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.grey.withOpacity(0.3)),
+              child: Text('${androidIntent?.toMap()}')),
           const SizedBox(height: 10),
-          Text('action: ${receiveData?.action}'),
+          const Text('接收的分享数据'),
+          const SizedBox(height: 10),
+          Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.all(12),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.grey.withOpacity(0.3)),
+              child: Text('${receiveShared?.toMap()}')),
+          ElevatedButton(
+              onPressed: getRealFilePathWithAndroid,
+              child: const Text('Android uri转真实文件地址')),
+          ElevatedButton(
+              onPressed: getRealFilePathCompatibleWXQQWithAndroid,
+              child: const Text('Android uri转真实文件地址 兼容微信QQ')),
+          const SizedBox(height: 10),
+          ValueListenableBuilder(
+              valueListenable: realPath,
+              builder: (_, String? value, __) => Text(value ?? ''))
         ]);
+  }
+
+  void getRealFilePathWithAndroid() async {
+    final uri = receiveShared?.data;
+    if (uri != null && uri.isNotEmpty) {
+      realPath.value = await FlBeShared().getRealFilePathWithAndroid(uri);
+    }
+  }
+
+  void getRealFilePathCompatibleWXQQWithAndroid() async {
+    final uri = receiveShared?.data;
+    if (uri != null && uri.isNotEmpty) {
+      realPath.value =
+          await FlBeShared().getRealFilePathCompatibleWXQQWithAndroid(uri);
+    }
   }
 }

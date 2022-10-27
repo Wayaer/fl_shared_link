@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-typedef FlBeSharedReceiveData = void Function(ReceiveData? data);
+typedef FlBeSharedReceiveData = void Function(AndroidIntent? data);
 
 class FlBeShared {
   factory FlBeShared() => _singleton ??= FlBeShared._();
@@ -12,33 +14,97 @@ class FlBeShared {
   final MethodChannel _channel = const MethodChannel('fl_be_shared');
 
   /// 获取接收到的内容
-  Future<ReceiveData?> get receiveData async {
+  Future<AndroidIntent?> get receiveData async {
     final data = await _channel.invokeMapMethod('getReceiveData');
-    if (data != null) return ReceiveData.fromMap(data);
+    if (data != null) return AndroidIntent.fromMap(data);
     return null;
+  }
+
+  /// 获取 所有 Android Intent 数据
+  Future<AndroidIntent?> get androidIntent async {
+    if (!_isAndroid) return null;
+    final data = await _channel.invokeMapMethod('getIntent');
+    debugPrint(data.toString());
+    if (data != null) return AndroidIntent.fromMap(data);
+    return null;
+  }
+
+  /// [AndroidIntent] 中的 [data] 获取文件真是地址
+  Future<String?> getRealFilePathWithAndroid(String uri) async {
+    if (uri.isEmpty || !_isAndroid) return uri;
+    final data = await _channel.invokeMethod<String>('getRealFilePath', uri);
+    debugPrint(data.toString());
+    return data;
+  }
+
+  /// [AndroidIntent] 中的 [data] 获取文件真是地址
+  /// 兼容微信和QQ
+  Future<String?> getRealFilePathCompatibleWXQQWithAndroid(String uri) async {
+    if (uri.isEmpty || !_isAndroid) return uri;
+    final data = await _channel.invokeMethod<String>(
+        'getRealFilePathCompatibleWXQQ', uri);
+    debugPrint(data.toString());
+    return data;
   }
 
   /// 监听 获取接收的内容
   /// app 首次启动 无法获取到数据，仅用于app进程没有被kill时 才会调用
-  void receiveHandler({FlBeSharedReceiveData? receiveData}) {
+  void receiveHandler({
+    /// 监听android 所有的Intent
+    FlBeSharedReceiveData? onAndroidIntent,
+    FlBeSharedReceiveData? onReceiveShared,
+  }) {
     _channel.setMethodCallHandler((call) async {
-      if (call.method == "receive") {
-        receiveData?.call(ReceiveData.fromMap(call.arguments as Map));
+      if (call.method == "onIntent") {
+        onAndroidIntent?.call(AndroidIntent.fromMap(call.arguments as Map));
+      } else if (call.method == "onReceiveShared") {
+        onReceiveShared?.call(AndroidIntent.fromMap(call.arguments as Map));
       }
     });
   }
 }
 
-class ReceiveData {
-  ReceiveData.fromMap(Map<dynamic, dynamic> map)
-      : action = map['action'] as String?,
-        data = map['data'] as String?;
+class AndroidIntent {
+  AndroidIntent.fromMap(Map<dynamic, dynamic> map)
+      : data = map['data'] as String?,
+        type = map['type'] as String?,
+        action = map['action'] as String?,
+        dataString = map['dataString'] as String?,
+        scheme = map['scheme'] as String?,
+        extras = map['extras'] as Map<dynamic, dynamic>?;
 
   /// 接收到的内容
   String? data;
 
   /// 接收事件类型
-  String? action;
+  String? type;
 
-  Map<String, dynamic> toMap() => {'data': data, 'action': action};
+  /// 行动
+  String? action;
+  String? dataString;
+
+  ///
+  String? scheme;
+
+  ///
+  Map<dynamic, dynamic>? extras;
+
+  Map<String, dynamic> toMap() => {
+        'data': data,
+        'action': action,
+        'type': type,
+        'dataString': dataString,
+        'scheme': scheme,
+        'extras': extras
+      };
 }
+
+bool get _supportPlatform {
+  if (!kIsWeb && (_isAndroid || _isIOS)) return true;
+  debugPrint('Not support platform for $defaultTargetPlatform');
+  return false;
+}
+
+bool get _isAndroid => defaultTargetPlatform == TargetPlatform.android;
+
+bool get _isIOS => defaultTargetPlatform == TargetPlatform.iOS;

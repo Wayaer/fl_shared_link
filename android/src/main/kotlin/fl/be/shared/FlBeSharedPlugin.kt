@@ -6,8 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
+import android.os.Bundle
 import android.provider.MediaStore
-import android.text.TextUtils
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -18,13 +18,14 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry
 import java.io.*
 
+
 /** FlBeSharedPlugin */
 class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private lateinit var channel: MethodChannel
     private lateinit var context: Context
     private var binding: ActivityPluginBinding? = null
-    private var receiveData: Map<String, String>? = null
+    private var intent: Intent? = null
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "fl_be_shared")
@@ -33,16 +34,36 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
-        if (call.method == "getReceiveData") {
-            result.success(receiveData)
-        } else {
-            result.notImplemented()
+        when (call.method) {
+            "getIntent" -> {
+                result.success(intent?.map);
+            }
+            "getReceiveData" -> {
+                val type = intent?.type
+                val action = intent?.action
+                if (type == null || Intent.ACTION_VIEW != action && Intent.ACTION_SEND != action) {
+                    result.success(null)
+                } else {
+                    result.success(intent?.map)
+                }
+            }
+            "getRealFilePath" -> result.success(getRealFilePath(Uri.parse(call.arguments as String)))
+            "getRealFilePathCompatibleWXQQ" -> result.success(
+                getRealFilePathCompatibleWXQQ(
+                    Uri.parse(
+                        call.arguments as String
+                    )
+                )
+            )
+            else -> {
+                result.notImplemented()
+            }
         }
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         binding.addOnNewIntentListener(onNewIntent)
-        binding.activity.intent?.let { receiveAction(it) }
+        binding.activity.intent?.let { handlerIntent(it) }
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
@@ -67,33 +88,67 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
 
+    private fun handlerIntent(intent: Intent) {
+        this.intent = intent
+        channel.invokeMethod("onIntent", this.intent?.map)
+        val type = intent.type
+        val action = intent.action
+        if (type == null || Intent.ACTION_VIEW != action && Intent.ACTION_SEND != action) {
+            channel.invokeMethod("onReceiveShared", this.intent?.map)
+        }
+    }
+
     private var onNewIntent: PluginRegistry.NewIntentListener =
         PluginRegistry.NewIntentListener { intent ->
-            receiveAction(intent)
+            handlerIntent(intent)
             true
         }
 
+    private val Intent.map: Map<String, String?>
+        get() = mapOf(
+            "action" to action,
+            "type" to type,
+            "data" to data?.path,
+            "dataString" to dataString,
+            "scheme" to scheme,
+            "extras" to extras?.map,
+        ) as HashMap<String, String?>
 
-    private fun receiveAction(intent: Intent) {
-        val action = intent.action
-        val type = intent.type
-        if (type == null || Intent.ACTION_VIEW != action && Intent.ACTION_SEND != action) {
-            return
+    private val Bundle.map: HashMap<String, String?>
+        get() {
+            val keySet = keySet()
+            val map = HashMap<String, String?>()
+            for (key in keySet) {
+                map[key] = get(key).toString()
+            }
+            return map
         }
-        var uri: Uri? = intent.data
-        if (uri == null) {
-            uri = intent.getParcelableExtra(Intent.EXTRA_STREAM)
-        }
-        val filePath: String? = getFileFromUri(uri)
-        if (TextUtils.isEmpty(filePath)) {
-            return
-        }
-        receiveData = mapOf("data" to filePath.toString(), "action" to action)
 
+
+    private fun getRealFilePath(uri: Uri?): String? {
+        if (null == uri) return null
+        val scheme = uri.scheme
+        var data: String? = null
+        if (scheme == null) data = uri.path else if (ContentResolver.SCHEME_FILE == scheme) {
+            data = uri.path
+        } else if (ContentResolver.SCHEME_CONTENT == scheme) {
+            val cursor = context.contentResolver.query(
+                uri, arrayOf(MediaStore.Images.ImageColumns.DATA), null, null, null
+            )
+            if (null != cursor) {
+                if (cursor.moveToFirst()) {
+                    val index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
+                    if (index > -1) {
+                        data = cursor.getString(index)
+                    }
+                }
+                cursor.close()
+            }
+        }
+        return data
     }
 
-
-    private fun getFileFromUri(uri: Uri?): String? {
+    private fun getRealFilePathCompatibleWXQQ(uri: Uri?): String? {
         return if (uri == null) {
             null
         } else when (uri.scheme) {

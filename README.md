@@ -31,6 +31,7 @@ Android 配置 (project/android/app/src/main/AndroidManifest.xml)
 <!-- mimeType 可接收的类型 -->
 <intent-filter>
     <data android:mimeType="image/*" />
+    <data android:mimeType="text/*" />
     <data android:mimeType="application/msword" />
     <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
     <data android:mimeType="application/vnd.ms-excel" />
@@ -38,6 +39,6 @@ Android 配置 (project/android/app/src/main/AndroidManifest.xml)
     <data android:mimeType="application/vnd.ms-powerpoint" />
     <data android:mimeType="application/vnd.openxmlformats-officedocument.presentationml.presentation" />
     <data android:mimeType="application/pdf" />
-    <data android:mimeType="text/plain" />
 </intent-filter>
 ```
+
