@@ -36,7 +36,7 @@ public class FlBeSharedPlugin: NSObject, FlutterPlugin {
         universalLinkMap = [
             "url": userActivity.webpageURL?.absoluteString,
             "scheme": userActivity.webpageURL?.scheme,
-            "type": userActivity.activityType,
+            "action": userActivity.activityType,
             "userInfo": userActivity.userInfo,
             "title": userActivity.title,
         ]
@@ -49,7 +49,7 @@ public class FlBeSharedPlugin: NSObject, FlutterPlugin {
         openUrlMap = [
             "url": url.absoluteString,
             "scheme": url.scheme,
-            "type": "openUrl",
+            "action": "openUrl",
             "extras": options,
         ]
         channel.invokeMethod("onOpenUrl", arguments: openUrlMap)
@@ -60,7 +60,7 @@ public class FlBeSharedPlugin: NSObject, FlutterPlugin {
         openUrlMap = [
             "url": url.absoluteString,
             "scheme": url.scheme,
-            "type": "handleOpenUrl",
+            "action": "handleOpenUrl",
         ]
         channel.invokeMethod("onOpenUrl", arguments: openUrlMap)
         return true

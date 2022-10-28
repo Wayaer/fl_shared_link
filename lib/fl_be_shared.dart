@@ -112,36 +112,37 @@ class FlBeShared {
 class BaseReceiveData {
   BaseReceiveData.fromMap(Map<dynamic, dynamic> map)
       : url = map['url'] as String?,
-        type = map['type'] as String?,
+        action = map['action'] as String?,
         scheme = map['scheme'] as String?;
 
   /// 接收到的url
   String? url;
 
   /// 接收事件类型
-  /// Android =>[]
+  /// Android => action
   ///
   /// IOS => ['openUrl,'handleOpenUrl','NSUserActivityTypeBrowsingWeb']
-  /// [type] = openURL 通过打开一个url的方式打开其它的应用或链接、在支付或者分享时需要打开其他应用的方法
-  /// [type] = handleOpenURL 是其它应用通过调用你的app中设置的URL scheme打开你的应用、例如做分享回调到自己app
-  /// [type] = NSUserActivityTypeBrowsingWeb 是通过浏览器域名打开app
-  String? type;
+  /// [action] = openURL 通过打开一个url的方式打开其它的应用或链接、在支付或者分享时需要打开其他应用的方法
+  /// [action] = handleOpenURL 是其它应用通过调用你的app中设置的URL scheme打开你的应用、例如做分享回调到自己app
+  /// [action] = NSUserActivityTypeBrowsingWeb 是通过浏览器域名打开app
+  String? action;
 
   /// scheme
   String? scheme;
 
-  Map<String, dynamic> toMap() => {'url': url, 'type': type, 'scheme': scheme};
+  Map<String, dynamic> toMap() =>
+      {'url': url, 'action': action, 'scheme': scheme};
 }
 
 class AndroidIntentModel extends BaseReceiveData {
   AndroidIntentModel.fromMap(Map<dynamic, dynamic> map)
-      : action = map['action'] as String?,
+      : type = map['type'] as String?,
         userInfo = map['userInfo'] as String?,
         extras = map['extras'] as Map<dynamic, dynamic>?,
         super.fromMap(map);
 
-  /// 行为
-  String? action;
+  /// mimeType
+  String? type;
 
   /// extras
   Map<dynamic, dynamic>? extras;
@@ -151,7 +152,7 @@ class AndroidIntentModel extends BaseReceiveData {
 
   @override
   Map<String, dynamic> toMap() => super.toMap()
-    ..addAll({'action': action, 'userInfo': userInfo, 'extras': extras});
+    ..addAll({'type': type, 'userInfo': userInfo, 'extras': extras});
 }
 
 class IOSUniversalLinkModel extends IOSOpenUrlModel {
