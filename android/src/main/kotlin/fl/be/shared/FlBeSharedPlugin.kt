@@ -100,19 +100,20 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 
-    private var onNewIntent: PluginRegistry.NewIntentListener = PluginRegistry.NewIntentListener { intent ->
-        handlerIntent(intent)
-        true
-    }
+    private var onNewIntent: PluginRegistry.NewIntentListener =
+        PluginRegistry.NewIntentListener { intent ->
+            handlerIntent(intent)
+            true
+        }
 
     private val Intent.map: Map<String, String?>
         get() = mapOf(
-                "action" to action,
-                "type" to type,
-                "data" to data?.path,
-                "dataString" to dataString,
-                "scheme" to scheme,
-                "extras" to extras?.map,
+            "action" to action,
+            "type" to type,
+            "url" to data?.path,
+            "userInfo" to data?.userInfo,
+            "scheme" to scheme,
+            "extras" to extras?.map,
         ) as HashMap<String, String?>
 
     private val Bundle.map: HashMap<String, String?>
@@ -133,7 +134,9 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         if (scheme == null) data = uri.path else if (ContentResolver.SCHEME_FILE == scheme) {
             data = uri.path
         } else if (ContentResolver.SCHEME_CONTENT == scheme) {
-            val cursor = context.contentResolver.query(uri, arrayOf(MediaStore.Images.ImageColumns.DATA), null, null, null)
+            val cursor = context.contentResolver.query(
+                uri, arrayOf(MediaStore.Images.ImageColumns.DATA), null, null, null
+            )
             if (null != cursor) {
                 if (cursor.moveToFirst()) {
                     val index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
@@ -171,7 +174,8 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private fun getFilePathFromContentUri(uri: Uri?): String? {
         if (null == uri) return null
         var data: String? = null
-        val filePathColumn = arrayOf(MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME)
+        val filePathColumn =
+            arrayOf(MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME)
         val cursor: Cursor? = context.contentResolver.query(uri, filePathColumn, null, null, null)
         if (null != cursor) {
             if (cursor.moveToFirst()) {

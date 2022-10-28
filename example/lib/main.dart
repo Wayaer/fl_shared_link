@@ -1,8 +1,17 @@
 import 'package:fl_be_shared/fl_be_shared.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+bool get _isAndroid => defaultTargetPlatform == TargetPlatform.android;
+
+bool get _isIOS => defaultTargetPlatform == TargetPlatform.iOS;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  Widget child = const SizedBox();
+  if (_isAndroid) child = const AndroidPage();
+  if (_isIOS) child = const IOSPage();
+
   runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -10,19 +19,33 @@ void main() {
           body: Container(
               alignment: Alignment.center,
               padding: const EdgeInsets.all(20),
-              child: const SingleChildScrollView(child: HomePage())))));
+              child: SingleChildScrollView(child: child)))));
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class IOSPage extends StatefulWidget {
+  const IOSPage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<IOSPage> createState() => _IOSPageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  AndroidIntent? androidIntent;
-  AndroidIntent? receiveShared;
+class _IOSPageState extends State<IOSPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+class AndroidPage extends StatefulWidget {
+  const AndroidPage({Key? key}) : super(key: key);
+
+  @override
+  State<AndroidPage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<AndroidPage> {
+  AndroidReceiveDataModel? androidIntent;
+  AndroidReceiveDataModel? receiveShared;
 
   ValueNotifier<String?> realPath = ValueNotifier('');
 
@@ -30,13 +53,14 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      receiveShared = await FlBeShared().receiveShared;
-      androidIntent = await FlBeShared().androidIntent;
+      receiveShared = await FlBeShared().receiveSharedWithAndroid;
+      androidIntent = await FlBeShared().intentWithAndroid;
       setState(() {});
-      FlBeShared().receiveHandler(onReceiveShared: (AndroidIntent? data) {
+      FlBeShared().receiveHandler(
+          onReceiveShared: (AndroidReceiveDataModel? data) {
         receiveShared = data;
         setState(() {});
-      }, onAndroidIntent: (AndroidIntent? data) {
+      }, onAndroidIntent: (AndroidReceiveDataModel? data) {
         androidIntent = data;
         setState(() {});
       });
