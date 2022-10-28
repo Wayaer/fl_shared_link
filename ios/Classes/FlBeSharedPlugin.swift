@@ -35,7 +35,6 @@ public class FlBeSharedPlugin: NSObject, FlutterPlugin {
     public func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]) -> Void) -> Bool {
         universalLinkMap = [
             "url": userActivity.webpageURL?.absoluteString,
-            "relativePath": userActivity.webpageURL?.relativePath,
             "scheme": userActivity.webpageURL?.scheme,
             "type": userActivity.activityType,
             "userInfo": userActivity.userInfo,
@@ -49,7 +48,6 @@ public class FlBeSharedPlugin: NSObject, FlutterPlugin {
     public func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         openUrlMap = [
             "url": url.absoluteString,
-            "relativePath": url.relativePath,
             "scheme": url.scheme,
             "type": "openUrl",
             "extras": options,
@@ -61,7 +59,6 @@ public class FlBeSharedPlugin: NSObject, FlutterPlugin {
     public func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
         openUrlMap = [
             "url": url.absoluteString,
-            "relativePath": url.relativePath,
             "scheme": url.scheme,
             "type": "handleOpenUrl",
         ]

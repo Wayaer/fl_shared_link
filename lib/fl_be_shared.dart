@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 typedef FlBeSharedAndroidReceiveDataModel = void Function(
-    AndroidReceiveDataModel? data);
+    AndroidIntentModel? data);
 
 typedef FlBeSharedIOSUniversalLinkModel = void Function(
     IOSUniversalLinkModel? data);
@@ -21,18 +21,18 @@ class FlBeShared {
   /// ******* Android ******* ///
 
   /// 获取 Android 分享 打开 接收到的内容
-  Future<AndroidReceiveDataModel?> get receiveSharedWithAndroid async {
+  Future<AndroidIntentModel?> get receiveSharedWithAndroid async {
     if (!_isAndroid) return null;
     final data = await _channel.invokeMapMethod('getReceiveShared');
-    if (data != null) return AndroidReceiveDataModel.fromMap(data);
+    if (data != null) return AndroidIntentModel.fromMap(data);
     return null;
   }
 
   /// 获取 所有 Android Intent 数据
-  Future<AndroidReceiveDataModel?> get intentWithAndroid async {
+  Future<AndroidIntentModel?> get intentWithAndroid async {
     if (!_isAndroid) return null;
     final data = await _channel.invokeMapMethod('getIntent');
-    if (data != null) return AndroidReceiveDataModel.fromMap(data);
+    if (data != null) return AndroidIntentModel.fromMap(data);
     return null;
   }
 
@@ -74,7 +74,7 @@ class FlBeShared {
   /// app 首次启动 无法获取到数据，仅用于app进程没有被kill时 才会调用
   void receiveHandler({
     /// 监听 android 所有的Intent
-    FlBeSharedAndroidReceiveDataModel? onAndroidIntent,
+    FlBeSharedAndroidReceiveDataModel? onIntent,
 
     /// 监听 android  分享到app 或者打开 app
     FlBeSharedAndroidReceiveDataModel? onReceiveShared,
@@ -84,18 +84,18 @@ class FlBeShared {
 
     /// 监听 ios openUrl 和 handleOpenUrl 启动 app
     /// 用 其他应用打开 分享 或 打开
+    ///
     FlBeSharedIOSOpenUrlModel? onOpenUrl,
   }) {
     if (!_supportPlatform) return;
     _channel.setMethodCallHandler((call) async {
       switch (call.method) {
         case 'onIntent':
-          onAndroidIntent
-              ?.call(AndroidReceiveDataModel.fromMap(call.arguments as Map));
+          onIntent?.call(AndroidIntentModel.fromMap(call.arguments as Map));
           break;
         case 'onReceiveShared':
           onReceiveShared
-              ?.call(AndroidReceiveDataModel.fromMap(call.arguments as Map));
+              ?.call(AndroidIntentModel.fromMap(call.arguments as Map));
           break;
         case 'onOpenUrl':
           onOpenUrl?.call(IOSOpenUrlModel.fromMap(call.arguments as Map));
@@ -119,7 +119,12 @@ class BaseReceiveData {
   String? url;
 
   /// 接收事件类型
-  /// IOS => ['openUrl,'handleOpenUrl']
+  /// Android =>[]
+  ///
+  /// IOS => ['openUrl,'handleOpenUrl','NSUserActivityTypeBrowsingWeb']
+  /// [type] = openURL 通过打开一个url的方式打开其它的应用或链接、在支付或者分享时需要打开其他应用的方法
+  /// [type] = handleOpenURL 是其它应用通过调用你的app中设置的URL scheme打开你的应用、例如做分享回调到自己app
+  /// [type] = NSUserActivityTypeBrowsingWeb 是通过浏览器域名打开app
   String? type;
 
   /// scheme
@@ -128,8 +133,8 @@ class BaseReceiveData {
   Map<String, dynamic> toMap() => {'url': url, 'type': type, 'scheme': scheme};
 }
 
-class AndroidReceiveDataModel extends BaseReceiveData {
-  AndroidReceiveDataModel.fromMap(Map<dynamic, dynamic> map)
+class AndroidIntentModel extends BaseReceiveData {
+  AndroidIntentModel.fromMap(Map<dynamic, dynamic> map)
       : action = map['action'] as String?,
         userInfo = map['userInfo'] as String?,
         extras = map['extras'] as Map<dynamic, dynamic>?,
@@ -167,19 +172,14 @@ class IOSUniversalLinkModel extends IOSOpenUrlModel {
 
 class IOSOpenUrlModel extends BaseReceiveData {
   IOSOpenUrlModel.fromMap(Map<dynamic, dynamic> map)
-      : relativePath = map['relativePath'] as String?,
-        extras = map['extras'] as Map<dynamic, dynamic>?,
+      : extras = map['extras'] as Map<dynamic, dynamic>?,
         super.fromMap(map);
-
-  /// 相对地址
-  String? relativePath;
 
   /// 其他的数据
   Map<dynamic, dynamic>? extras;
 
   @override
-  Map<String, dynamic> toMap() =>
-      super.toMap()..addAll({'relativePath': relativePath, 'extras': extras});
+  Map<String, dynamic> toMap() => super.toMap()..addAll({'extras': extras});
 }
 
 bool get _supportPlatform {

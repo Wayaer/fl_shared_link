@@ -11,7 +11,6 @@ void main() {
   Widget child = const SizedBox();
   if (_isAndroid) child = const AndroidPage();
   if (_isIOS) child = const IOSPage();
-
   runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -30,9 +29,58 @@ class IOSPage extends StatefulWidget {
 }
 
 class _IOSPageState extends State<IOSPage> {
+  IOSUniversalLinkModel? universalLink;
+  IOSOpenUrlModel? openUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      universalLink = await FlBeShared().universalLinkWithIOS;
+      openUrl = await FlBeShared().openUrlWithIOS;
+      setState(() {});
+      FlBeShared().receiveHandler(
+          onUniversalLink: (IOSUniversalLinkModel? data) {
+        universalLink = data;
+        setState(() {});
+      }, onOpenUrl: (IOSOpenUrlModel? data) {
+        openUrl = data;
+        setState(() {});
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text('IOS UniversalLink'),
+          const SizedBox(height: 10),
+          Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.all(12),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.grey.withOpacity(0.3)),
+              child: Text('${universalLink?.toMap()}')),
+          const SizedBox(height: 10),
+          const Text('IOS openUrl'),
+          const SizedBox(height: 10),
+          Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.all(12),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.grey.withOpacity(0.3)),
+              child: Text('${openUrl?.toMap()}')),
+          const SizedBox(height: 30),
+        ]);
   }
 }
 
@@ -40,12 +88,12 @@ class AndroidPage extends StatefulWidget {
   const AndroidPage({Key? key}) : super(key: key);
 
   @override
-  State<AndroidPage> createState() => _HomePageState();
+  State<AndroidPage> createState() => _AndroidPageState();
 }
 
-class _HomePageState extends State<AndroidPage> {
-  AndroidReceiveDataModel? androidIntent;
-  AndroidReceiveDataModel? receiveShared;
+class _AndroidPageState extends State<AndroidPage> {
+  AndroidIntentModel? intent;
+  AndroidIntentModel? receiveShared;
 
   ValueNotifier<String?> realPath = ValueNotifier('');
 
@@ -54,14 +102,13 @@ class _HomePageState extends State<AndroidPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       receiveShared = await FlBeShared().receiveSharedWithAndroid;
-      androidIntent = await FlBeShared().intentWithAndroid;
+      intent = await FlBeShared().intentWithAndroid;
       setState(() {});
-      FlBeShared().receiveHandler(
-          onReceiveShared: (AndroidReceiveDataModel? data) {
+      FlBeShared().receiveHandler(onReceiveShared: (AndroidIntentModel? data) {
         receiveShared = data;
         setState(() {});
-      }, onAndroidIntent: (AndroidReceiveDataModel? data) {
-        androidIntent = data;
+      }, onIntent: (AndroidIntentModel? data) {
+        intent = data;
         setState(() {});
       });
     });
@@ -83,7 +130,7 @@ class _HomePageState extends State<AndroidPage> {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   color: Colors.grey.withOpacity(0.3)),
-              child: Text('${androidIntent?.toMap()}')),
+              child: Text('${intent?.toMap()}')),
           const SizedBox(height: 10),
           const Text('接收的分享数据'),
           const SizedBox(height: 10),
@@ -125,5 +172,11 @@ class _HomePageState extends State<AndroidPage> {
   void getRealFilePathCompatibleWXQQWithAndroid() async {
     realPath.value =
         await FlBeShared().getRealFilePathCompatibleWXQQWithAndroid();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    realPath.dispose();
   }
 }
