@@ -28,7 +28,7 @@ Android 配置 (project/android/app/src/main/AndroidManifest.xml)
 ```
 
 ```xml
-<!-- mimeType 可接收的类型 -->
+<!-- mimeType 部分可接收的类型 -->
 <intent-filter>
     <data android:mimeType="image/*" />
     <data android:mimeType="text/*" />
