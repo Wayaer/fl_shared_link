@@ -1,4 +1,4 @@
-package fl.be.shared.example
+package fl.shared.link.example
 
 import io.flutter.embedding.android.FlutterActivity
 

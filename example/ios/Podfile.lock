@@ -1,20 +1,20 @@
 PODS:
-  - fl_be_shared (0.0.1):
+  - fl_shared_link (0.0.1):
     - Flutter
   - Flutter (1.0.0)
 
 DEPENDENCIES:
-  - fl_be_shared (from `.symlinks/plugins/fl_be_shared/ios`)
+  - fl_shared_link (from `.symlinks/plugins/fl_shared_link/ios`)
   - Flutter (from `Flutter`)
 
 EXTERNAL SOURCES:
-  fl_be_shared:
-    :path: ".symlinks/plugins/fl_be_shared/ios"
+  fl_shared_link:
+    :path: ".symlinks/plugins/fl_shared_link/ios"
   Flutter:
     :path: Flutter
 
 SPEC CHECKSUMS:
-  fl_be_shared: 67bdd43120b836cb59cb878902c50d72cda34b7b
+  fl_shared_link: b5aec6cf535d09e3826948468bdd5bf81516b0ac
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
 
 PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3

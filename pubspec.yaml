@@ -1,7 +1,7 @@
-name: fl_be_shared
-description: Make your app appear in someone else's share list and get the parameters to share it
+name: fl_shared_link
+description: Gets parameters when the app is opened, and listens to be opened
 version: 0.0.1
-repository: https://github.com/Wayaer/fl_be_shared.git
+repository: https://github.com/Wayaer/fl_shared_link.git
 
 environment:
   sdk: '>=2.18.2 <3.0.0'
@@ -20,7 +20,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: fl.be.shared
-        pluginClass: FlBeSharedPlugin
+        package: fl.shared.link
+        pluginClass: FlSharedLinkPlugin
       ios:
-        pluginClass: FlBeSharedPlugin
+        pluginClass: FlSharedLinkPlugin

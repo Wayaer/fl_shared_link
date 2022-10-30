@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>FlBeShared</string>
+	<string>FlSharedLink</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -29,7 +29,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>FlBeShared</string>
+	<string>FlSharedLink</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -45,7 +45,7 @@
 			<string>app://</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fl_be_shared</string>
+				<string>fl.shared.link</string>
 			</array>
 		</dict>
 	</array>

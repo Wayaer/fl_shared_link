@@ -1,5 +1,5 @@
-group 'fl.be.shared.fl_be_shared'
-version '1.0-SNAPSHOT'
+group 'fl.shared.link'
+version '1.0'
 
 buildscript {
     ext.kotlin_version = '1.7.20'

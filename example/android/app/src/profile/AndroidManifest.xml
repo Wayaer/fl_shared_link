@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="fl.be.shared.example">
-    <uses-permission android:name="android.permission.INTERNET"/>
+    package="fl.shared.link.example">
+
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

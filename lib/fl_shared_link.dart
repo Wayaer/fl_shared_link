@@ -1,32 +1,24 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-typedef FlBeSharedAndroidReceiveDataModel = void Function(
+typedef FlSharedLinkAndroidReceiveDataModel = void Function(
     AndroidIntentModel? data);
 
-typedef FlBeSharedIOSUniversalLinkModel = void Function(
+typedef FlSharedLinkIOSUniversalLinkModel = void Function(
     IOSUniversalLinkModel? data);
 
-typedef FlBeSharedIOSOpenUrlModel = void Function(IOSOpenUrlModel? data);
+typedef FlSharedLinkIOSOpenUrlModel = void Function(IOSOpenUrlModel? data);
 
-class FlBeShared {
-  factory FlBeShared() => _singleton ??= FlBeShared._();
+class FlSharedLink {
+  factory FlSharedLink() => _singleton ??= FlSharedLink._();
 
-  FlBeShared._();
+  FlSharedLink._();
 
-  static FlBeShared? _singleton;
+  static FlSharedLink? _singleton;
 
-  final MethodChannel _channel = const MethodChannel('fl_be_shared');
+  final MethodChannel _channel = const MethodChannel('fl.shared.link');
 
   /// ******* Android ******* ///
-
-  /// 获取 Android 分享 打开 接收到的内容
-  Future<AndroidIntentModel?> get receiveSharedWithAndroid async {
-    if (!_isAndroid) return null;
-    final data = await _channel.invokeMapMethod('getReceiveShared');
-    if (data != null) return AndroidIntentModel.fromMap(data);
-    return null;
-  }
 
   /// 获取 所有 Android Intent 数据
   Future<AndroidIntentModel?> get intentWithAndroid async {
@@ -74,28 +66,20 @@ class FlBeShared {
   /// app 首次启动 无法获取到数据，仅用于app进程没有被kill时 才会调用
   void receiveHandler({
     /// 监听 android 所有的Intent
-    FlBeSharedAndroidReceiveDataModel? onIntent,
-
-    /// 监听 android  分享到app 或者打开 app
-    FlBeSharedAndroidReceiveDataModel? onReceiveShared,
+    FlSharedLinkAndroidReceiveDataModel? onIntent,
 
     /// 监听 ios UniversalLink 启动 app
-    FlBeSharedIOSUniversalLinkModel? onUniversalLink,
+    FlSharedLinkIOSUniversalLinkModel? onUniversalLink,
 
     /// 监听 ios openUrl 和 handleOpenUrl 启动 app
     /// 用 其他应用打开 分享 或 打开
-    ///
-    FlBeSharedIOSOpenUrlModel? onOpenUrl,
+    FlSharedLinkIOSOpenUrlModel? onOpenUrl,
   }) {
     if (!_supportPlatform) return;
     _channel.setMethodCallHandler((call) async {
       switch (call.method) {
         case 'onIntent':
           onIntent?.call(AndroidIntentModel.fromMap(call.arguments as Map));
-          break;
-        case 'onReceiveShared':
-          onReceiveShared
-              ?.call(AndroidIntentModel.fromMap(call.arguments as Map));
           break;
         case 'onOpenUrl':
           onOpenUrl?.call(IOSOpenUrlModel.fromMap(call.arguments as Map));

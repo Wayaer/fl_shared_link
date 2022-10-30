@@ -1,4 +1,4 @@
-package fl.be.shared
+package fl.shared.link
 
 
 import android.content.ContentResolver
@@ -19,8 +19,8 @@ import io.flutter.plugin.common.PluginRegistry
 import java.io.*
 
 
-/** FlBeSharedPlugin */
-class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
+/** FlSharedLinkPlugin */
+class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private lateinit var channel: MethodChannel
     private lateinit var context: Context
@@ -28,7 +28,7 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private var intent: Intent? = null
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(binding.binaryMessenger, "fl_be_shared")
+        channel = MethodChannel(binding.binaryMessenger, "fl.shared.link")
         channel.setMethodCallHandler(this)
         context = binding.applicationContext
     }
@@ -36,15 +36,6 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "getIntent" -> result.success(intent?.map)
-            "getReceiveShared" -> {
-                val type = intent?.type
-                val action = intent?.action
-                if (type == null || Intent.ACTION_VIEW != action && Intent.ACTION_SEND != action) {
-                    result.success(null)
-                } else {
-                    result.success(intent?.map)
-                }
-            }
             "getRealFilePath" -> {
                 var uri = intent?.data
                 if (uri == null) {
@@ -66,24 +57,23 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        this.binding = binding
         binding.addOnNewIntentListener(onNewIntent)
         binding.activity.intent?.let { handlerIntent(it) }
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-        this.binding = binding
-        binding.addOnNewIntentListener(onNewIntent)
+        onAttachedToActivity(binding)
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
-        binding!!.removeOnNewIntentListener(onNewIntent)
+        binding?.removeOnNewIntentListener(onNewIntent)
         binding = null
     }
 
 
     override fun onDetachedFromActivity() {
-        binding!!.removeOnNewIntentListener(onNewIntent)
-        binding = null
+        onDetachedFromActivityForConfigChanges();
     }
 
 
@@ -94,26 +84,21 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private fun handlerIntent(intent: Intent) {
         this.intent = intent
         channel.invokeMethod("onIntent", this.intent?.map)
-        val action = intent.action
-        if (Intent.ACTION_VIEW == action || Intent.ACTION_SEND == action) {
-            channel.invokeMethod("onReceiveShared", this.intent?.map)
-        }
     }
 
-    private var onNewIntent: PluginRegistry.NewIntentListener =
-        PluginRegistry.NewIntentListener { intent ->
-            handlerIntent(intent)
-            true
-        }
+    private var onNewIntent: PluginRegistry.NewIntentListener = PluginRegistry.NewIntentListener { intent ->
+        handlerIntent(intent)
+        true
+    }
 
     private val Intent.map: Map<String, String?>
         get() = mapOf(
-            "action" to action,
-            "type" to type,
-            "url" to data?.path,
-            "userInfo" to data?.userInfo,
-            "scheme" to scheme,
-            "extras" to extras?.map,
+                "action" to action,
+                "type" to type,
+                "uri" to data?.path,
+                "userInfo" to data?.userInfo,
+                "scheme" to scheme,
+                "extras" to extras?.map,
         ) as HashMap<String, String?>
 
     private val Bundle.map: HashMap<String, String?>
@@ -134,9 +119,7 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         if (scheme == null) data = uri.path else if (ContentResolver.SCHEME_FILE == scheme) {
             data = uri.path
         } else if (ContentResolver.SCHEME_CONTENT == scheme) {
-            val cursor = context.contentResolver.query(
-                uri, arrayOf(MediaStore.Images.ImageColumns.DATA), null, null, null
-            )
+            val cursor = context.contentResolver.query(uri, arrayOf(MediaStore.Images.ImageColumns.DATA), null, null, null)
             if (null != cursor) {
                 if (cursor.moveToFirst()) {
                     val index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
@@ -174,8 +157,7 @@ class FlBeSharedPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private fun getFilePathFromContentUri(uri: Uri?): String? {
         if (null == uri) return null
         var data: String? = null
-        val filePathColumn =
-            arrayOf(MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME)
+        val filePathColumn = arrayOf(MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME)
         val cursor: Cursor? = context.contentResolver.query(uri, filePathColumn, null, null, null)
         if (null != cursor) {
             if (cursor.moveToFirst()) {

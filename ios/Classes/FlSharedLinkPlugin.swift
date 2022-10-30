@@ -1,7 +1,7 @@
 import Flutter
 import UIKit
 
-public class FlBeSharedPlugin: NSObject, FlutterPlugin {
+public class FlSharedLinkPlugin: NSObject, FlutterPlugin {
     private var universalLinkMap: [AnyHashable: Any?]?
     private var openUrlMap: [AnyHashable: Any?]?
 
@@ -14,8 +14,8 @@ public class FlBeSharedPlugin: NSObject, FlutterPlugin {
     }
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "fl_be_shared", binaryMessenger: registrar.messenger())
-        let instance = FlBeSharedPlugin(channel)
+        let channel = FlutterMethodChannel(name: "fl.shared.link", binaryMessenger: registrar.messenger())
+        let instance = FlSharedLinkPlugin(channel)
         registrar.addApplicationDelegate(instance)
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
