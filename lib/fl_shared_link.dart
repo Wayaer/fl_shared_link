@@ -1,6 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+part 'android.dart';
+
+part 'ios.dart';
+
 typedef FlSharedLinkAndroidReceiveDataModel = void Function(
     AndroidIntentModel? data);
 
@@ -103,12 +107,8 @@ class BaseReceiveData {
   String? url;
 
   /// 接收事件类型
-  /// Android => action
-  ///
-  /// IOS => ['openUrl,'handleOpenUrl','NSUserActivityTypeBrowsingWeb']
-  /// [action] = openURL 通过打开一个url的方式打开其它的应用或链接、在支付或者分享时需要打开其他应用的方法
-  /// [action] = handleOpenURL 是其它应用通过调用你的app中设置的URL scheme打开你的应用、例如做分享回调到自己app
-  /// [action] = NSUserActivityTypeBrowsingWeb 是通过浏览器域名打开app
+  /// Android => [AndroidAction]
+  /// IOS => [IOSAction]
   String? action;
 
   /// scheme
@@ -126,6 +126,7 @@ class AndroidIntentModel extends BaseReceiveData {
         super.fromMap(map);
 
   /// mimeType
+  /// 部分 [AndroidMineType]
   String? type;
 
   /// extras

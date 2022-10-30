@@ -8,17 +8,23 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>FlSharedLink</string>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<string>No</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>FlBeShared</string>
+			<string>FlSharedLink</string>
 			<key>LSHandlerRank</key>
 			<string>Default</string>
 			<key>LSItemContentTypes</key>
 			<array>
+				<string>public.file-url</string>
+				<string>public.image</string>
+				<string>public.text</string>
+				<string>public.movie</string>
+				<string>public.url</string>
 				<string>public.data</string>
-				<string>public.word</string>
 			</array>
 		</dict>
 	</array>

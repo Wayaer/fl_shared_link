@@ -70,19 +70,25 @@ void func() async {
 IOS 配置 (project/ios/Runner/Info.plist)
 
 ```plist
+<key>LSSupportsOpeningDocumentsInPlace</key>
+<string>No</string>
 <key>CFBundleDocumentTypes</key>
 <array>
-<dict>
-    <key>CFBundleTypeName</key>
-    <string>FlSharedLink</string>
-    <key>LSHandlerRank</key>
-    <string>Default</string>
-    <key>LSItemContentTypes</key>
-    <array>
-        <string>public.data</string>
-        <string>public.word</string>
-    </array>
-</dict>
+    <dict>
+        <key>CFBundleTypeName</key>
+        <string>FlSharedLink</string>
+        <key>LSHandlerRank</key>
+        <string>Default</string>
+        <key>LSItemContentTypes</key>
+        <array>
+            <string>public.file-url</string>
+            <string>public.image</string>
+            <string>public.text</string>
+            <string>public.movie</string>
+            <string>public.url</string>
+            <string>public.data</string>
+        </array>
+    </dict>
 </array>
 ```
 
