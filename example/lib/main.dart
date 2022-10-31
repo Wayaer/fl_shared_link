@@ -28,6 +28,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   IOSUniversalLinkModel? universalLink;
   IOSOpenUrlModel? openUrl;
+  Map? launchingOptionsWithIOS;
   AndroidIntentModel? intent;
   ValueNotifier<String?> realPath = ValueNotifier('');
 
@@ -35,9 +36,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      universalLink = await FlSharedLink().universalLinkWithIOS;
-      openUrl = await FlSharedLink().openUrlWithIOS;
-      intent = await FlSharedLink().intentWithAndroid;
+      if (_isIOS) {
+        universalLink = await FlSharedLink().universalLinkWithIOS;
+        openUrl = await FlSharedLink().openUrlWithIOS;
+        launchingOptionsWithIOS = await FlSharedLink().launchingOptionsWithIOS;
+      }
+      if (_isAndroid) intent = await FlSharedLink().intentWithAndroid;
       setState(() {});
       FlSharedLink().receiveHandler(
           onUniversalLink: (IOSUniversalLinkModel? data) {
@@ -114,6 +118,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<Widget> get iosChildren => [
+        const Text('IOS Launching Options'),
+        const SizedBox(height: 10),
+        Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.all(12),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey.withOpacity(0.3)),
+            child: Text('$launchingOptionsWithIOS')),
+        const SizedBox(height: 10),
         const Text('IOS UniversalLink'),
         const SizedBox(height: 10),
         Container(

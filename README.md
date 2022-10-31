@@ -68,6 +68,7 @@ void func() async {
 ```
 
 IOS 配置 (project/ios/Runner/Info.plist)
+[LSItemContentTypes详细](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html)
 
 ```plist
 <key>LSSupportsOpeningDocumentsInPlace</key>

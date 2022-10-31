@@ -8,8 +8,6 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>FlSharedLink</string>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<string>No</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -48,10 +46,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>app://</string>
+			<string></string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fl.shared.link</string>
+				<string>FlSharedLink</string>
 			</array>
 		</dict>
 	</array>
@@ -59,6 +57,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<string>No</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>

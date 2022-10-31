@@ -66,6 +66,13 @@ class FlSharedLink {
     return null;
   }
 
+  /// 获取 ios launchingOptions 启动参数
+  /// 只有启动的时候获取到参数
+  Future<Map<dynamic, dynamic>?> get launchingOptionsWithIOS async {
+    if (!_isIOS) return null;
+    return await _channel.invokeMapMethod('getLaunchingOptionsMap');
+  }
+
   /// 监听 获取接收的内容
   /// app 首次启动 无法获取到数据，仅用于app进程没有被kill时 才会调用
   void receiveHandler({
