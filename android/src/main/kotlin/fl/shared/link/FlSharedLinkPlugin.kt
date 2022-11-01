@@ -26,6 +26,7 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var context: Context
     private var binding: ActivityPluginBinding? = null
     private var intent: Intent? = null
+    private var uriMap = HashMap<String, Uri>()
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "fl.shared.link")
@@ -36,19 +37,9 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "getIntent" -> result.success(intent?.map)
-            "getRealFilePath" -> {
-                var uri = intent?.data
-                if (uri == null) {
-                    uri = intent?.getParcelableExtra(Intent.EXTRA_STREAM)
-                }
-                result.success(getRealFilePath(uri))
-            }
             "getRealFilePathCompatibleWXQQ" -> {
-                var uri = intent?.data
-                if (uri == null) {
-                    uri = intent?.getParcelableExtra(Intent.EXTRA_STREAM)
-                }
-                result.success(getRealFilePathCompatibleWXQQ(uri))
+                val uri = uriMap[call.arguments]
+                result.success(getRealFilePath(uri))
             }
             else -> {
                 result.notImplemented()
@@ -73,7 +64,7 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
 
     override fun onDetachedFromActivity() {
-        onDetachedFromActivityForConfigChanges();
+        onDetachedFromActivityForConfigChanges()
     }
 
 
@@ -86,22 +77,33 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         channel.invokeMethod("onIntent", this.intent?.map)
     }
 
-    private var onNewIntent: PluginRegistry.NewIntentListener =
-        PluginRegistry.NewIntentListener { intent ->
-            handlerIntent(intent)
-            true
-        }
+    private var onNewIntent: PluginRegistry.NewIntentListener = PluginRegistry.NewIntentListener { intent ->
+        handlerIntent(intent)
+        true
+    }
 
-    private val Intent.map: Map<String, String?>
-        get() = mapOf(
-            "action" to action,
-            "type" to type,
-            "uri" to data?.path,
-            "authority" to data?.authority,
-            "userInfo" to data?.userInfo,
-            "scheme" to scheme,
-            "extras" to extras?.map,
-        ) as HashMap<String, String?>
+
+    private val Intent.map: Map<String, Any?>
+        get() {
+            val map = HashMap<String, Any?>()
+            map["action"] = action
+            map["type"] = type
+            map["scheme"] = scheme
+            map["extras"] = extras?.map
+            var uri = data
+            if (uri == null) {
+                uri = getParcelableExtra(Intent.EXTRA_STREAM)
+            }
+            map["url"] = uri?.path
+            map["authority"] = uri?.authority
+            map["userInfo"] = uri?.userInfo
+            val id = uri?.hashCode()?.toString()
+            map["id"] = id
+            if (uri != null && id != null) {
+                uriMap[id] = uri
+            }
+            return map
+        }
 
     private val Bundle.map: HashMap<String, String?>
         get() {
@@ -115,29 +117,6 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
 
     private fun getRealFilePath(uri: Uri?): String? {
-        if (null == uri) return null
-        val scheme = uri.scheme
-        var data: String? = null
-        if (scheme == null) data = uri.path else if (ContentResolver.SCHEME_FILE == scheme) {
-            data = uri.path
-        } else if (ContentResolver.SCHEME_CONTENT == scheme) {
-            val cursor = context.contentResolver.query(
-                uri, arrayOf(MediaStore.Images.ImageColumns.DATA), null, null, null
-            )
-            if (null != cursor) {
-                if (cursor.moveToFirst()) {
-                    val index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
-                    if (index > -1) {
-                        data = cursor.getString(index)
-                    }
-                }
-                cursor.close()
-            }
-        }
-        return data
-    }
-
-    private fun getRealFilePathCompatibleWXQQ(uri: Uri?): String? {
         return if (uri == null) {
             null
         } else when (uri.scheme) {
@@ -161,8 +140,7 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private fun getFilePathFromContentUri(uri: Uri?): String? {
         if (null == uri) return null
         var data: String? = null
-        val filePathColumn =
-            arrayOf(MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME)
+        val filePathColumn = arrayOf(MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME)
         val cursor: Cursor? = context.contentResolver.query(uri, filePathColumn, null, null, null)
         if (null != cursor) {
             if (cursor.moveToFirst()) {
