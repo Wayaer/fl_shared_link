@@ -21,7 +21,7 @@
             </intent-filter>
 
             <!-- 注册接收分享 -->
-            <intent-filter android:label="接收分享">
+            <intent-filter android:label="FlSharedLink接收">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <!--接收打开的文件类型-->
@@ -40,7 +40,7 @@
             </intent-filter>
 
             <!-- 注册默认打开事件，微信、QQ的其他应用打开 -->
-            <intent-filter android:label="打开分享">
+            <intent-filter android:label="FlSharedLink打开">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
 

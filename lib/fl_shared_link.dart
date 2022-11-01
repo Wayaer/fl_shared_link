@@ -33,18 +33,11 @@ class FlSharedLink {
   }
 
   /// [AndroidIntent] 中的 [url] 获取文件真是地址
-  Future<String?> getRealFilePathWithAndroid() async {
-    if (!_isAndroid) return null;
-    final data = await _channel.invokeMethod<String>('getRealFilePath');
-    return data;
-  }
-
-  /// [AndroidIntent] 中的 [url] 获取文件真是地址
   /// 兼容微信和QQ
-  Future<String?> getRealFilePathCompatibleWXQQWithAndroid() async {
-    if (!_isAndroid) return null;
-    final data =
-        await _channel.invokeMethod<String>('getRealFilePathCompatibleWXQQ');
+  Future<String?> getRealFilePathWithAndroid(String id) async {
+    if (!_isAndroid || id.isEmpty) return null;
+    final data = await _channel.invokeMethod<String>(
+        'getRealFilePathCompatibleWXQQ', id);
     return data;
   }
 
@@ -129,6 +122,8 @@ class AndroidIntentModel extends BaseReceiveData {
   AndroidIntentModel.fromMap(Map<dynamic, dynamic> map)
       : type = map['type'] as String?,
         userInfo = map['userInfo'] as String?,
+        id = map['id'] as String?,
+        authority = map['authority'] as String?,
         extras = map['extras'] as Map<dynamic, dynamic>?,
         super.fromMap(map);
 
@@ -142,9 +137,22 @@ class AndroidIntentModel extends BaseReceiveData {
   /// userInfo
   String? userInfo;
 
+  /// authority
+  String? authority;
+
+  /// uri id
+  /// 根据此 id 获取 uri 的真实路径
+  String? id;
+
   @override
   Map<String, dynamic> toMap() => super.toMap()
-    ..addAll({'type': type, 'userInfo': userInfo, 'extras': extras});
+    ..addAll({
+      'type': type,
+      'userInfo': userInfo,
+      'extras': extras,
+      'id': id,
+      'authority': authority
+    });
 }
 
 class IOSUniversalLinkModel extends IOSOpenUrlModel {

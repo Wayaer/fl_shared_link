@@ -83,9 +83,6 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 10),
         ElevatedButton(
             onPressed: getRealFilePathWithAndroid,
-            child: const Text('Android uri转真实文件地址')),
-        ElevatedButton(
-            onPressed: getRealFilePathCompatibleWXQQWithAndroid,
             child: const Text('Android uri转真实文件地址 兼容微信QQ')),
         const SizedBox(height: 10),
         ValueListenableBuilder(
@@ -103,12 +100,9 @@ class _HomePageState extends State<HomePage> {
       ];
 
   void getRealFilePathWithAndroid() async {
-    realPath.value = await FlSharedLink().getRealFilePathWithAndroid();
-  }
-
-  void getRealFilePathCompatibleWXQQWithAndroid() async {
-    realPath.value =
-        await FlSharedLink().getRealFilePathCompatibleWXQQWithAndroid();
+    final id = intent?.id;
+    if (id == null) return;
+    realPath.value = await FlSharedLink().getRealFilePathWithAndroid(id);
   }
 
   @override
