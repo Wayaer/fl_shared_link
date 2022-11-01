@@ -51,12 +51,9 @@ void func() async {
   /// 获取 android 所有 Intent
   final intent = await FlSharedLink().intentWithAndroid;
 
-  /// 当前获取到intent中的uri中带有文件路径，会自动转换为 文件真实路径 微信或qq等部分app内部文件无法获取
-  final realPath = await FlSharedLink().getRealFilePathWithAndroid();
-
   /// 当前获取到intent中的uri中带有文件路径，会自动转换为 文件真实路径 兼容微信或qq
-  /// 此方法会拷贝文件至当前app内部空间
-  final realPath = await FlSharedLink().getRealFilePathCompatibleWXQQWithAndroid();
+  /// 微信或QQ 此方法会拷贝文件至当前app内部空间
+  final realPath = await FlSharedLink().getRealFilePathWithAndroid(intent.id);
 
   FlSharedLink().receiveHandler(onIntent: (AndroidIntentModel? data) {
     /// 监听 android 所有的 intent 数据
@@ -104,6 +101,9 @@ void func() async {
   /// 通过openUrl或handleOpenUrl启动app获取上一个启动携带的参数
   /// 通常 用 其他应用打开 分享 或 打开 携带的参数从这里获取
   final openUrl = await FlSharedLink().openUrlWithIOS;
+
+  /// app首次启动 获取启动参数
+  final Map? launchingOptionsWithIOS = await FlSharedLink().launchingOptionsWithIOS;
 
   FlSharedLink().receiveHandler(
       onUniversalLink: (IOSUniversalLinkModel? data) {
