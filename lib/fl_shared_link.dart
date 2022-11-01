@@ -73,6 +73,18 @@ class FlSharedLink {
     return await _channel.invokeMapMethod('getLaunchingOptionsMap');
   }
 
+  /// 获取文件绝对路径
+  Future<String?> getAbsolutePathWithIOS(String url) async {
+    if (!_isIOS || url.isEmpty) return null;
+    return await _channel.invokeMethod('getAbsolutePath', url);
+  }
+
+  /// 当文件路径带有中文时候 需要进行转码
+  Future<String?> removingPercentEncodingWithIOS(String path) async {
+    if (!_isIOS || path.isEmpty) return null;
+    return await _channel.invokeMethod('removingPercentEncoding', path);
+  }
+
   /// 监听 获取接收的内容
   /// app 首次启动 无法获取到数据，仅用于app进程没有被kill时 才会调用
   void receiveHandler({
