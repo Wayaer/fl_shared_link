@@ -50,7 +50,7 @@ public class FlSharedLinkPlugin: NSObject, FlutterPlugin {
             "title": userActivity.title,
         ]
         channel.invokeMethod("onUniversalLink", arguments: universalLinkMap)
-        return true
+        return false
     }
 
     public func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
@@ -61,7 +61,7 @@ public class FlSharedLinkPlugin: NSObject, FlutterPlugin {
             "extras": options,
         ]
         channel.invokeMethod("onOpenUrl", arguments: openUrlMap)
-        return true
+        return false
     }
 
     public func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
@@ -71,12 +71,12 @@ public class FlSharedLinkPlugin: NSObject, FlutterPlugin {
             "action": "handleOpenUrl",
         ]
         channel.invokeMethod("onOpenUrl", arguments: openUrlMap)
-        return true
+        return false
     }
 
     public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable: Any] = [:]) -> Bool {
         launchingWithOptionsMap = launchOptions
-        return true
+        return false
     }
 
     private func getAbsolutePath(_ identifier: String) -> String? {
