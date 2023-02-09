@@ -1,7 +1,8 @@
 name: example
 description: Demonstrates how to use the fl_shared_link plugin.
 publish_to: 'none'
-version: 0.0.1
+version: 1.0.0+1
+
 environment:
   sdk: '>=2.18.2 <3.0.0'
 
@@ -13,8 +14,6 @@ dependencies:
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   flutter_lints: ^2.0.1
 
 flutter:

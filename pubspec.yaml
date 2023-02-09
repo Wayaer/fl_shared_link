@@ -1,6 +1,6 @@
 name: fl_shared_link
 description: Gets parameters when the app is opened, and listens to be opened
-version: 0.0.2
+version: 0.0.3
 repository: https://github.com/Wayaer/fl_shared_link.git
 
 environment:
@@ -12,8 +12,6 @@ dependencies:
     sdk: flutter
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   flutter_lints: ^2.0.1
 
 flutter:
