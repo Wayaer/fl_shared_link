@@ -33,13 +33,11 @@ Android 配置 (project/android/app/src/main/AndroidManifest.xml)
     <data android:mimeType="image/*" />
     <data android:mimeType="text/*" />
     <data android:mimeType="application/msword" />
-    <data
-        android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+    <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
     <data android:mimeType="application/vnd.ms-excel" />
     <data android:mimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
     <data android:mimeType="application/vnd.ms-powerpoint" />
-    <data
-        android:mimeType="application/vnd.openxmlformats-officedocument.presentationml.presentation" />
+    <data android:mimeType="application/vnd.openxmlformats-officedocument.presentationml.presentation" />
     <data android:mimeType="application/pdf" />
 </intent-filter>
 ```
