@@ -8,6 +8,7 @@ bool get _isIOS => defaultTargetPlatform == TargetPlatform.iOS;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  debugPrint("=====start dart main");
   runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData.light(useMaterial3: true),
