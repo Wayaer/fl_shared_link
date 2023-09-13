@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:icon="@mipmap/ic_launcher"
@@ -21,10 +20,12 @@
             </intent-filter>
 
             <!-- 注册接收分享 -->
+            <!-- Sign up to share -->
             <intent-filter android:label="FlSharedLink接收">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <!--接收打开的文件类型-->
+                <!--接收分享的文件类型-->
+                <!--Type of file to be shared-->
                 <data android:mimeType="application/msword" />
                 <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
                 <data android:mimeType="application/vnd.ms-excel" />
@@ -40,6 +41,7 @@
             </intent-filter>
 
             <!-- 注册默认打开事件，微信、QQ的其他应用打开 -->
+            <!-- Register the default open event, other applications open -->
             <intent-filter android:label="FlSharedLink打开">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -48,6 +50,7 @@
                 <data android:scheme="content" />
 
                 <!-- 接收打开的文件类型 -->
+                <!-- Receive open file types -->
                 <data android:mimeType="application/msword" />
                 <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
                 <data android:mimeType="application/vnd.ms-excel" />
@@ -62,7 +65,8 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
-        <!--解决部分app启动没有跳出当前app启动问题-->
+        <!--为解决 telegram和email等其他app，在分享到自己的app时，自己的app覆盖了原本的app，而不是跳转到自己的app，解决办法如下-->
+        <!-- In order to solve other apps such as telegram and email, when sharing your app, your app overwrites the original app instead of jumping to your app, the solution is as follows-->
         <activity
             android:name=".SharedLauncherActivity"
             android:exported="true"
@@ -71,10 +75,12 @@
             android:theme="@style/LaunchTheme">
 
             <!-- 注册接收分享 -->
+            <!-- Sign up to share -->
             <intent-filter android:label="SharedLauncher接收">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <!--接收打开的文件类型-->
+                <!--接收分享的文件类型-->
+                <!--Type of file to be shared-->
                 <data android:mimeType="application/msword" />
                 <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
                 <data android:mimeType="application/vnd.ms-excel" />
@@ -90,6 +96,7 @@
             </intent-filter>
 
             <!-- 注册默认打开事件，微信、QQ的其他应用打开 -->
+            <!-- Register the default open event, other applications open -->
             <intent-filter android:label="SharedLauncher打开">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -98,6 +105,7 @@
                 <data android:scheme="content" />
 
                 <!-- 接收打开的文件类型 -->
+                <!-- Receive open file types -->
                 <data android:mimeType="application/msword" />
                 <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
                 <data android:mimeType="application/vnd.ms-excel" />

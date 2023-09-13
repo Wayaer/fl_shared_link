@@ -1,5 +1,7 @@
 # fl_shared_link
 
+# Android configuration items
+
 Android MainActivity `project/android/app/src/main/AndroidManifest.xml`
 
 ```xml
@@ -11,8 +13,8 @@ Android MainActivity `project/android/app/src/main/AndroidManifest.xml`
     <intent-filter>
         <action android:name="android.intent.action.SEND" />
         <category android:name="android.intent.category.DEFAULT" />
-        <!--接收打开的文件类型-->
-        <!--Receive the open file type-->
+        <!--接收分享的文件类型-->
+        <!--Type of file to be shared-->
         <data android:mimeType="application/pdf" />
     </intent-filter>
     <!-- 注册默认打开事件，微信、QQ的其他应用打开 -->
@@ -72,9 +74,9 @@ void func() async {
 
 ```
 
-## 为解决 telegram和email等其他app，在分享到自己的app时，自己的app覆盖了原本的app，而不是跳转到自己的app，解决办法如下
+### 为解决 telegram和email等其他app，在分享到自己的app时，自己的app覆盖了原本的app，而不是跳转到自己的app，解决办法如下
 
-## In order to solve other apps such as telegram and email, when sharing your app, your app overwrites the original app instead of jumping to your app, the solution is as follows
+### In order to solve other apps such as telegram and email, when sharing your app, your app overwrites the original app instead of jumping to your app, the solution is as follows
 
 - 复制 `example/android/app/src/main/kotlin/fl/shared/link/example/SharedLauncherActivity.kt` 文件到你自己app的目录下，与 `MainActivity`在同一个目录
 - Copy `example/android/app/src/main/kotlin/fl/Shared/link/example/SharedLauncherActivity.kt ` file to the directory of your own app, In the same directory as MainActivity
@@ -93,7 +95,8 @@ void func() async {
     <intent-filter android:label="SharedLauncher接收">
         <action android:name="android.intent.action.SEND" />
         <category android:name="android.intent.category.DEFAULT" />
-        <!--接收打开的文件类型-->
+        <!--接收分享的文件类型-->
+        <!--Type of file to be shared-->
         <data android:mimeType="*/*" />
     </intent-filter>
 
@@ -105,12 +108,15 @@ void func() async {
 
         <data android:scheme="file" />
         <data android:scheme="content" />
-
+        <!-- 接收打开的文件类型 -->
+        <!-- Receive open file types -->
         <data android:mimeType="*/*" />
     </intent-filter>
 </activity>
 
 ```
+
+# IOS configuration items
 
 IOS `project/ios/Runner/Info.plist`
 [LSItemContentTypes](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html)
