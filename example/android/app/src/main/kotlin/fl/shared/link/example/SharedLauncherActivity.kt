@@ -10,13 +10,11 @@ class SharedLauncherActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        println("=====start shared launcher activity")
         startMain(intent)
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        println("==== onNewIntent ${intent?.action}")
         startMain(intent)
     }
 
@@ -27,7 +25,6 @@ class SharedLauncherActivity : ComponentActivity() {
         newIntent.data = intent?.data
         newIntent.type = intent?.type
         intent?.extras?.let { newIntent.putExtras(it) }
-        println("===== SharedLauncher start main activity")
         this.startActivity(newIntent)
         finish()
     }
