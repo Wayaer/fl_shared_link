@@ -131,13 +131,13 @@ class BaseReceiveData {
 }
 
 class AndroidIntentModel extends BaseReceiveData {
-  AndroidIntentModel.fromMap(Map<dynamic, dynamic> map)
+  AndroidIntentModel.fromMap(super.map)
       : type = map['type'] as String?,
         userInfo = map['userInfo'] as String?,
         id = map['id'] as String?,
         authority = map['authority'] as String?,
         extras = map['extras'] as Map<dynamic, dynamic>?,
-        super.fromMap(map);
+        super.fromMap();
 
   /// mimeType
   /// 部分 [AndroidMineType]
@@ -168,10 +168,10 @@ class AndroidIntentModel extends BaseReceiveData {
 }
 
 class IOSUniversalLinkModel extends IOSOpenUrlModel {
-  IOSUniversalLinkModel.fromMap(Map<dynamic, dynamic> map)
+  IOSUniversalLinkModel.fromMap(super.map)
       : title = map['title'] as String?,
         userInfo = map['userInfo'] as Map<dynamic, dynamic>?,
-        super.fromMap(map);
+        super.fromMap();
 
   /// title
   String? title;
@@ -184,9 +184,9 @@ class IOSUniversalLinkModel extends IOSOpenUrlModel {
 }
 
 class IOSOpenUrlModel extends BaseReceiveData {
-  IOSOpenUrlModel.fromMap(Map<dynamic, dynamic> map)
+  IOSOpenUrlModel.fromMap(super.map)
       : extras = map['extras'] as Map<dynamic, dynamic>?,
-        super.fromMap(map);
+        super.fromMap();
 
   /// 其他的数据
   Map<dynamic, dynamic>? extras;
