@@ -11,8 +11,6 @@ void main() {
   debugPrint("==== dart start dart main");
   runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.light(useMaterial3: true),
-      darkTheme: ThemeData.dark(useMaterial3: true),
       home: Scaffold(
           appBar: AppBar(title: const Text('FlSharedLink Plugin')),
           body: Container(
