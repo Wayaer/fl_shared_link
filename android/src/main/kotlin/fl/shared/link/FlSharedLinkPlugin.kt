@@ -39,8 +39,14 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "getIntent" -> result.success(intent?.map)
             "getRealFilePathCompatibleWXQQ" -> {
                 val uri = uriMap[call.arguments]
-                result.success(getRealFilePath(uri))
+                result.success(getRealFilePath(uri) { getFilePathFromContentUri(uri) })
             }
+
+            "copyFile" -> {
+                val uri = uriMap[call.arguments]
+                result.success(getRealFilePath(uri) { copyPath(uri) })
+            }
+
             else -> {
                 result.notImplemented()
             }
@@ -77,10 +83,11 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         channel.invokeMethod("onIntent", this.intent?.map)
     }
 
-    private var onNewIntent: PluginRegistry.NewIntentListener = PluginRegistry.NewIntentListener { intent ->
-        handlerIntent(intent)
-        true
-    }
+    private var onNewIntent: PluginRegistry.NewIntentListener =
+        PluginRegistry.NewIntentListener { intent ->
+            handlerIntent(intent)
+            true
+        }
 
 
     private val Intent.map: Map<String, Any?>
@@ -116,16 +123,65 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
 
-    private fun getRealFilePath(uri: Uri?): String? {
+    private fun getRealFilePath(uri: Uri?, onContent: () -> String?): String? {
         return if (uri == null) {
             null
         } else when (uri.scheme) {
             ContentResolver.SCHEME_CONTENT -> //Android7.0之后的uri content:// URI
-                getFilePathFromContentUri(uri)
+                onContent()
+
             ContentResolver.SCHEME_FILE -> //Android7.0之前的uri file://
                 uri.path?.let { File(it).absolutePath }
+
             else -> uri.path?.let { File(it).absolutePath }
         }
+    }
+
+    private fun copyPath(uri: Uri?): String? {
+        intent.let { it ->
+            if (Intent.ACTION_SEND == it!!.action && it.type != null) {
+                when {
+                    it.type?.startsWith("image/") == true -> { // 如果是图片
+                        val imageUri: Uri? = it.getParcelableExtra(Intent.EXTRA_STREAM)
+                        if (imageUri != null) {
+                            try {
+                                context.contentResolver.openInputStream(imageUri)
+                                    ?.use { inputStream ->
+                                        val outputFile = File("", "image.jpg")
+                                        FileOutputStream(outputFile).use { outputStream ->
+                                            val buffer = ByteArray(1024)
+                                            var length: Int
+                                            while (inputStream.read(buffer)
+                                                    .also { length = it } > 0
+                                            ) {
+                                                outputStream.write(buffer, 0, length)
+                                            }
+                                            outputStream.flush()
+                                        }
+                                    }
+                            } catch (e: IOException) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+
+                    it.type?.startsWith("text/") == true -> { // 如果是文本
+                        val sharedText: String? = it.getStringExtra(Intent.EXTRA_TEXT)
+                        if (sharedText != null) {
+                            try {
+                                val outputFile = File("", "shared_text.txt")
+                                FileOutputStream(outputFile).use { outputStream ->
+                                    outputStream.write(sharedText.toByteArray())
+                                }
+                            } catch (e: IOException) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null
     }
 
     /**
@@ -140,7 +196,8 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private fun getFilePathFromContentUri(uri: Uri?): String? {
         if (null == uri) return null
         var data: String? = null
-        val filePathColumn = arrayOf(MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME)
+        val filePathColumn =
+            arrayOf(MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME)
         val cursor: Cursor? = context.contentResolver.query(uri, filePathColumn, null, null, null)
         if (null != cursor) {
             if (cursor.moveToFirst()) {
