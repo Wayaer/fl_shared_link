@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:fl_shared_link/fl_shared_link.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 bool get _isAndroid => defaultTargetPlatform == TargetPlatform.android;
 
@@ -8,7 +11,6 @@ bool get _isIOS => defaultTargetPlatform == TargetPlatform.iOS;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  debugPrint("==== dart start dart main");
   runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -104,6 +106,14 @@ class _HomePageState extends State<HomePage> {
     final id = intent?.id;
     if (id == null) return;
     realPath.value = await FlSharedLink().getRealFilePathWithAndroid(id);
+    if (realPath.value != null) {
+      final file = File(realPath.value!);
+      debugPrint('file path:${file.path}');
+      final dir = await getApplicationDocumentsDirectory();
+      final newFile = await file.copy(
+          '${dir.path}/copy_file.${file.path.replaceAll(file.parent.path, '').split('.').last}');
+      debugPrint('copy path:${newFile.path}');
+    }
   }
 
   @override

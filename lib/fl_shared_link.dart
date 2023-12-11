@@ -34,10 +34,12 @@ class FlSharedLink {
 
   /// [AndroidIntent] 中的 [url] 获取文件真是地址
   /// 兼容微信和QQ
-  Future<String?> getRealFilePathWithAndroid(String id) async {
+  /// isCopy = true 复制文件到当前app目录下 并返回路径（解决原路径访问权限问题）
+  Future<String?> getRealFilePathWithAndroid(String id,
+      {bool isCopy = true}) async {
     if (!_isAndroid || id.isEmpty) return null;
-    final data = await _channel.invokeMethod<String>(
-        'getRealFilePathCompatibleWXQQ', id);
+    final data = await _channel
+        .invokeMethod<String>('getRealFilePath', {'id': id, 'isCopy': isCopy});
     return data;
   }
 

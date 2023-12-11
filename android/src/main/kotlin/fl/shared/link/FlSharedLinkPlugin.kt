@@ -34,24 +34,6 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         context = binding.applicationContext
     }
 
-    override fun onMethodCall(call: MethodCall, result: Result) {
-        when (call.method) {
-            "getIntent" -> result.success(intent?.map)
-            "getRealFilePathCompatibleWXQQ" -> {
-                val uri = uriMap[call.arguments]
-                result.success(getRealFilePath(uri) { getFilePathFromContentUri(uri) })
-            }
-
-            "copyFile" -> {
-                val uri = uriMap[call.arguments]
-                result.success(getRealFilePath(uri) { copyPath(uri) })
-            }
-
-            else -> {
-                result.notImplemented()
-            }
-        }
-    }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         this.binding = binding
@@ -89,6 +71,104 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             true
         }
 
+    override fun onMethodCall(call: MethodCall, result: Result) {
+        when (call.method) {
+            "getIntent" -> result.success(intent?.map)
+            "getRealFilePath" -> {
+                val args = call.arguments as Map<*, *>
+                val isCopy = args["isCopy"] as Boolean
+                val uri = uriMap[args["id"] as String]
+                val realPath = if (uri == null) {
+                    null
+                } else when (uri.scheme) {
+                    ContentResolver.SCHEME_CONTENT -> getFilePathFromContentUri(uri, isCopy)
+                    ContentResolver.SCHEME_FILE -> uri.path?.let { File(it).absolutePath }
+
+                    else -> uri.path?.let { File(it).absolutePath }
+                }
+                result.success(realPath)
+            }
+
+
+            else -> {
+                result.notImplemented()
+            }
+        }
+    }
+
+
+    /**
+     * 从uri获取path
+     *
+     * @param uri content://media/external/file/109009
+     *
+     * FileProvider适配
+     * content://com.tencent.mobileqq.fileprovider/external_files/storage/emulated/0/Tencent/QQfile_recv/
+     * content://com.tencent.mm.external.fileprovider/external/tencent/MicroMsg/Download/
+     */
+    private fun getFilePathFromContentUri(uri: Uri?, isCopy: Boolean): String? {
+        if (null == uri) return null
+        var data: String? = null
+        val filePathColumn =
+            arrayOf(MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME)
+        val cursor: Cursor? = context.contentResolver.query(uri, filePathColumn, null, null, null)
+        if (null != cursor) {
+            if (cursor.moveToFirst()) {
+                val index: Int = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
+                data = if (index > -1 && !isCopy) {
+                    cursor.getString(index)
+                } else {
+                    val nameIndex: Int = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
+                    val fileName: String = cursor.getString(nameIndex)
+                    getPathFromInputStreamUri(uri, fileName)
+                }
+            }
+            cursor.close()
+        }
+        return data
+    }
+
+    /**
+     * 用流拷贝文件一份到自己APP私有目录下
+     *
+     * @param uri
+     * @param fileName
+     */
+    private fun getPathFromInputStreamUri(uri: Uri, fileName: String): String? {
+        var filePath: String? = null
+        if (uri.authority != null) {
+            var inputStream: InputStream? = null
+            try {
+                inputStream = context.contentResolver.openInputStream(uri)
+                var file: File? = null
+                if (inputStream != null) {
+                    var read: Int
+                    val buffer = ByteArray(8 * 1024)
+                    file = File(context.externalCacheDir, fileName)
+                    if (file.exists()) {
+                        file.delete()
+                    }
+                    val outputStream: OutputStream = FileOutputStream(file)
+                    while (inputStream.read(buffer).also { read = it } != -1) {
+                        outputStream.write(buffer, 0, read)
+                    }
+                    outputStream.flush()
+                    try {
+                        outputStream.close()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
+                filePath = file?.path
+            } catch (e: Exception) {
+                println("getPathFromInputStreamUri : ${e.message}")
+            } finally {
+                inputStream?.close()
+            }
+        }
+        return filePath
+    }
+
 
     private val Intent.map: Map<String, Any?>
         get() {
@@ -121,142 +201,4 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
             return map
         }
-
-
-    private fun getRealFilePath(uri: Uri?, onContent: () -> String?): String? {
-        return if (uri == null) {
-            null
-        } else when (uri.scheme) {
-            ContentResolver.SCHEME_CONTENT -> //Android7.0之后的uri content:// URI
-                onContent()
-
-            ContentResolver.SCHEME_FILE -> //Android7.0之前的uri file://
-                uri.path?.let { File(it).absolutePath }
-
-            else -> uri.path?.let { File(it).absolutePath }
-        }
-    }
-
-    private fun copyPath(uri: Uri?): String? {
-        intent.let { it ->
-            if (Intent.ACTION_SEND == it!!.action && it.type != null) {
-                when {
-                    it.type?.startsWith("image/") == true -> { // 如果是图片
-                        val imageUri: Uri? = it.getParcelableExtra(Intent.EXTRA_STREAM)
-                        if (imageUri != null) {
-                            try {
-                                context.contentResolver.openInputStream(imageUri)
-                                    ?.use { inputStream ->
-                                        val outputFile = File("", "image.jpg")
-                                        FileOutputStream(outputFile).use { outputStream ->
-                                            val buffer = ByteArray(1024)
-                                            var length: Int
-                                            while (inputStream.read(buffer)
-                                                    .also { length = it } > 0
-                                            ) {
-                                                outputStream.write(buffer, 0, length)
-                                            }
-                                            outputStream.flush()
-                                        }
-                                    }
-                            } catch (e: IOException) {
-                                e.printStackTrace()
-                            }
-                        }
-                    }
-
-                    it.type?.startsWith("text/") == true -> { // 如果是文本
-                        val sharedText: String? = it.getStringExtra(Intent.EXTRA_TEXT)
-                        if (sharedText != null) {
-                            try {
-                                val outputFile = File("", "shared_text.txt")
-                                FileOutputStream(outputFile).use { outputStream ->
-                                    outputStream.write(sharedText.toByteArray())
-                                }
-                            } catch (e: IOException) {
-                                e.printStackTrace()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null
-    }
-
-    /**
-     * 从uri获取path
-     *
-     * @param uri content://media/external/file/109009
-     *
-     * FileProvider适配
-     * content://com.tencent.mobileqq.fileprovider/external_files/storage/emulated/0/Tencent/QQfile_recv/
-     * content://com.tencent.mm.external.fileprovider/external/tencent/MicroMsg/Download/
-     */
-    private fun getFilePathFromContentUri(uri: Uri?): String? {
-        if (null == uri) return null
-        var data: String? = null
-        val filePathColumn =
-            arrayOf(MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME)
-        val cursor: Cursor? = context.contentResolver.query(uri, filePathColumn, null, null, null)
-        if (null != cursor) {
-            if (cursor.moveToFirst()) {
-                val index: Int = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
-                data = if (index > -1) {
-                    cursor.getString(index)
-                } else {
-                    val nameIndex: Int = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
-                    val fileName: String = cursor.getString(nameIndex)
-                    getPathFromInputStreamUri(uri, fileName)
-                }
-            }
-            cursor.close()
-        }
-        return data
-    }
-
-    /**
-     * 用流拷贝文件一份到自己APP私有目录下
-     *
-     * @param uri
-     * @param fileName
-     */
-    private fun getPathFromInputStreamUri(uri: Uri, fileName: String): String? {
-        var inputStream: InputStream? = null
-        var filePath: String? = null
-        if (uri.authority != null) {
-            try {
-                inputStream = context.contentResolver.openInputStream(uri)
-                val file: File? = createTemporalFileFrom(inputStream, fileName)
-                filePath = file?.path
-            } catch (_: Exception) {
-            } finally {
-                inputStream?.close()
-            }
-        }
-        return filePath
-    }
-
-    private fun createTemporalFileFrom(inputStream: InputStream?, fileName: String): File? {
-        var targetFile: File? = null
-        if (inputStream != null) {
-            var read: Int
-            val buffer = ByteArray(8 * 1024)
-            targetFile = File(context.externalCacheDir, fileName)
-            if (targetFile.exists()) {
-                targetFile.delete()
-            }
-            val outputStream: OutputStream = FileOutputStream(targetFile)
-            while (inputStream.read(buffer).also { read = it } != -1) {
-                outputStream.write(buffer, 0, read)
-            }
-            outputStream.flush()
-            try {
-                outputStream.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-        return targetFile
-    }
 }
