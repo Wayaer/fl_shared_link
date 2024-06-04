@@ -140,17 +140,15 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private fun getFilePathFromContentUri(uri: Uri?): String? {
         if (null == uri) return null
         var data: String? = null
-        val filePathColumn = arrayOf(MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME)
+        val filePathColumn = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
         val cursor: Cursor? = context.contentResolver.query(uri, filePathColumn, null, null, null)
         if (null != cursor) {
             if (cursor.moveToFirst()) {
-                val index: Int = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
-                data = if (index > -1) {
-                    cursor.getString(index)
-                } else {
+                val index: Int = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
+                if (index > -1 ) {
                     val nameIndex: Int = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
                     val fileName: String = cursor.getString(nameIndex)
-                    getPathFromInputStreamUri(uri, fileName)
+                    data = getPathFromInputStreamUri(uri, fileName)
                 }
             }
             cursor.close()
