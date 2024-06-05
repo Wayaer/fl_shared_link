@@ -116,6 +116,9 @@ void func() async {
 
 ```
 
+> [!NOTE] 
+> Opening files from different explorers and sources currently launches a new instance of the app each time. To avoid this behavior and ensure the app runs as a single instance, update the `android:launchMode` attribute in the activity tag of your `AndroidManifest.xml` file to `android:launchMode="singleInstancePerTask"`.  The file is located at `android/app/src/main/AndroidManifest.xml`.
+
 # IOS configuration items
 
 IOS `project/ios/Runner/Info.plist`
