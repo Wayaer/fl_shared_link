@@ -1,3 +1,7 @@
+## 0.2.0
+
+* [Merged pull](https://github.com/Wayaer/fl_shared_link/pull/2#issue-2333998538)
+
 ## 0.1.1
 
 * Add `namespace` in Android
