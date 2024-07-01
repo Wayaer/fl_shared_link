@@ -32,9 +32,9 @@ public class FlSharedLinkPlugin: NSObject, FlutterPlugin {
             result(getAbsolutePath(call.arguments as! String))
         case "getLaunchingOptionsMap":
             var map = [String: String]()
-            launchingWithOptionsMap?.forEach({ (key: AnyHashable, value: Any) in
+            launchingWithOptionsMap?.forEach { (key: AnyHashable, value: Any) in
                 map.updateValue(String(describing: value), forKey: String(describing: key))
-            })
+            }
             result(map)
         default:
             result(FlutterMethodNotImplemented)
@@ -50,7 +50,7 @@ public class FlSharedLinkPlugin: NSObject, FlutterPlugin {
             "title": userActivity.title,
         ]
         channel.invokeMethod("onUniversalLink", arguments: universalLinkMap)
-        return false
+        return true
     }
 
     public func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
@@ -61,7 +61,7 @@ public class FlSharedLinkPlugin: NSObject, FlutterPlugin {
             "extras": options,
         ]
         channel.invokeMethod("onOpenUrl", arguments: openUrlMap)
-        return false
+        return true
     }
 
     public func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
@@ -71,20 +71,20 @@ public class FlSharedLinkPlugin: NSObject, FlutterPlugin {
             "action": "handleOpenUrl",
         ]
         channel.invokeMethod("onOpenUrl", arguments: openUrlMap)
-        return false
+        return true
     }
 
     public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable: Any] = [:]) -> Bool {
         launchingWithOptionsMap = launchOptions
-        return false
+        return true
     }
 
     private func getAbsolutePath(_ identifier: String) -> String? {
-        if (identifier.starts(with: "file://") || identifier.starts(with: "/var/mobile/Media") || identifier.starts(with: "/private/var/mobile")) {
+        if identifier.starts(with: "file://") || identifier.starts(with: "/var/mobile/Media") || identifier.starts(with: "/private/var/mobile") {
             return identifier.replacingOccurrences(of: "file://", with: "")
         }
         let phAsset = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: .none).firstObject
-        if (phAsset == nil) {
+        if phAsset == nil {
             return nil
         }
         let (url, _) = getFullSizeImageURLAndOrientation(phAsset!)
@@ -92,12 +92,12 @@ public class FlSharedLinkPlugin: NSObject, FlutterPlugin {
     }
 
     private func getFullSizeImageURLAndOrientation(_ asset: PHAsset) -> (String?, Int) {
-        var url: String? = nil
+        var url: String?
         var orientation: Int = 0
         let semaphore = DispatchSemaphore(value: 0)
         let options2 = PHContentEditingInputRequestOptions()
         options2.isNetworkAccessAllowed = true
-        asset.requestContentEditingInput(with: options2) { (input, info) in
+        asset.requestContentEditingInput(with: options2) { input, _ in
             orientation = Int(input?.fullSizeImageOrientation ?? 0)
             url = input?.fullSizeImageURL?.path
             semaphore.signal()
