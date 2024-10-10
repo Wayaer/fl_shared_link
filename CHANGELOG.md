@@ -1,4 +1,6 @@
-## 0.2.1
+## 0.3.0
+
+* Update gradle version
 
 ## 0.2.0
 
