@@ -1,6 +1,5 @@
 package fl.shared.link
 
-
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -17,7 +16,6 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry
 import java.io.*
-
 
 /** FlSharedLinkPlugin */
 class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
