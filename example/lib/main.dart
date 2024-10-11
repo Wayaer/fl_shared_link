@@ -8,7 +8,6 @@ bool get _isIOS => defaultTargetPlatform == TargetPlatform.iOS;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  debugPrint("==== dart start dart main");
   runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -31,7 +30,7 @@ class _HomePageState extends State<HomePage> {
   IOSOpenUrlModel? openUrl;
   Map? launchingOptionsWithIOS;
   AndroidIntentModel? intent;
-  ValueNotifier<String?> realPath = ValueNotifier('');
+  String? realPath;
 
   @override
   void initState() {
@@ -86,30 +85,23 @@ class _HomePageState extends State<HomePage> {
             onPressed: getRealFilePathWithAndroid,
             child: const Text('Android uri转真实文件地址 兼容微信QQ')),
         const SizedBox(height: 10),
-        ValueListenableBuilder(
-            valueListenable: realPath,
-            builder: (_, String? value, __) => Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.all(12),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.grey.withOpacity(0.3)),
-                child: Text(value.toString()))),
+        Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.all(12),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey.withOpacity(0.3)),
+            child: Text(realPath.toString())),
         const SizedBox(height: 30),
       ];
 
   void getRealFilePathWithAndroid() async {
     final id = intent?.id;
     if (id == null) return;
-    realPath.value = await FlSharedLink().getRealFilePathWithAndroid(id);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    realPath.dispose();
+    realPath = await FlSharedLink().getRealFilePathWithAndroid(id);
+    setState(() {});
   }
 
   List<Widget> get iosChildren => [

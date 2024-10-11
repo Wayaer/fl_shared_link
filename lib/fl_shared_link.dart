@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-part 'android.dart';
+part 'src/android.dart';
 
-part 'ios.dart';
+part 'src/ios.dart';
 
 typedef FlSharedLinkAndroidReceiveDataModel = void Function(
     AndroidIntentModel? data);

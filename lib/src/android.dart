@@ -1,4 +1,4 @@
-part of 'fl_shared_link.dart';
+part of '../fl_shared_link.dart';
 
 class AndroidAction {
   AndroidAction._();

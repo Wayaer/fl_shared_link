@@ -1,4 +1,4 @@
-part of 'fl_shared_link.dart';
+part of '../fl_shared_link.dart';
 
 class IOSAction {
   /// 通过打开一个url的方式打开其它的应用或链接、在支付或者分享时需要打开其他应用的方法
