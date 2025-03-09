@@ -1,3 +1,9 @@
+## 0.3.1
+
+* Removed `removingPercentEncodingWithIOS`
+* Added `externalFileCopyWithIOS`
+* Added `clearCache`
+
 ## 0.3.0
 
 * Update gradle version

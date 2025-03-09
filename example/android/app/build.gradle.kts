@@ -1,11 +1,12 @@
 plugins {
-    id "com.android.application"
-    id "kotlin-android"
-    id "dev.flutter.flutter-gradle-plugin"
+    id("com.android.application")
+    id("kotlin-android")
+    id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
-    compileSdk flutter.compileSdkVersion
+    namespace = "fl.shared.link.example"
+    compileSdk = flutter.compileSdkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
@@ -13,29 +14,24 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_21
-    }
-
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
+        jvmTarget = JavaVersion.VERSION_21.toString()
     }
 
     defaultConfig {
-        applicationId "fl.shared.link.example"
+        applicationId = "fl.shared.link.example"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
-
     buildTypes {
-        release {
-            signingConfig signingConfigs.debug
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
-    namespace 'fl.shared.link.example'
+
 }
 
 flutter {
-    source '../..'
+    source = "../.."
 }

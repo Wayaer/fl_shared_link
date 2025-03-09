@@ -43,8 +43,7 @@ class _HomePageState extends State<HomePage> {
       }
       if (_isAndroid) intent = await FlSharedLink().intentWithAndroid;
       setState(() {});
-      FlSharedLink().receiveHandler(
-          onUniversalLink: (IOSUniversalLinkModel? data) {
+      FlSharedLink().receiveHandler(onUniversalLink: (IOSUniversalLinkModel? data) {
         universalLink = data;
         setState(() {});
       }, onOpenUrl: (IOSOpenUrlModel? data) {
@@ -62,10 +61,12 @@ class _HomePageState extends State<HomePage> {
     List<Widget> children = [];
     if (_isAndroid) children = androidChildren;
     if (_isIOS) children = iosChildren;
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: children);
+    children.add(ElevatedButton(
+        onPressed: () {
+          FlSharedLink().clearCache();
+        },
+        child: const Text('清除缓存')));
+    return Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: children);
   }
 
   List<Widget> get androidChildren => [
@@ -76,23 +77,17 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(12),
             margin: const EdgeInsets.all(12),
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey.withOpacity(0.3)),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.grey.withValues(alpha: 0.3)),
             child: Text('${intent?.toMap()}')),
         const SizedBox(height: 10),
-        ElevatedButton(
-            onPressed: getRealFilePathWithAndroid,
-            child: const Text('Android uri转真实文件地址 兼容微信QQ')),
+        ElevatedButton(onPressed: getRealFilePathWithAndroid, child: const Text('Android uri转真实文件地址 兼容微信QQ')),
         const SizedBox(height: 10),
         Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             margin: const EdgeInsets.all(12),
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey.withOpacity(0.3)),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.grey.withValues(alpha: 0.3)),
             child: Text(realPath.toString())),
         const SizedBox(height: 30),
       ];
@@ -112,9 +107,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(12),
             margin: const EdgeInsets.all(12),
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey.withOpacity(0.3)),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.grey.withValues(alpha: 0.3)),
             child: Text('$launchingOptionsWithIOS')),
         const SizedBox(height: 10),
         const Text('IOS UniversalLink'),
@@ -124,9 +117,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(12),
             margin: const EdgeInsets.all(12),
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey.withOpacity(0.3)),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.grey.withValues(alpha: 0.3)),
             child: Text('${universalLink?.toMap()}')),
         const SizedBox(height: 10),
         const Text('IOS openUrl'),
@@ -136,9 +127,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(12),
             margin: const EdgeInsets.all(12),
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey.withOpacity(0.3)),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.grey.withValues(alpha: 0.3)),
             child: Text('${openUrl?.toMap()}')),
         const SizedBox(height: 30),
       ];

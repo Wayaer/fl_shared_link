@@ -69,8 +69,10 @@ void func() async {
     /// 被分享或被打开 携带的参数 都在这里获取
     /// Parameters that are shared or opened and carried are obtained here
   });
-}
 
+  /// 清除缓存
+  FlSharedLink().clearCache();
+}
 
 ```
 
@@ -166,6 +168,10 @@ void func() async {
   /// When the app starts for the first time, the startup parameters are obtained
   final Map? launchingOptionsWithIOS = await FlSharedLink().launchingOptionsWithIOS;
 
+  /// 通过openUrl或handleOpenUrl 得到到的 id,将外部文件拷贝到当前app空间
+  /// The id obtained by openUrl or handleOpenUrl is copied to the current app space 
+  final path = await FlSharedLink().externalFileCopyWithIOS(id);
+
   FlSharedLink().receiveHandler(
       onUniversalLink: (IOSUniversalLinkModel? data) {
         /// 监听通过 universalLink 打开app 回调以及参数
@@ -175,5 +181,8 @@ void func() async {
         /// 监听通过 openUrl或者handleOpenUrl 打开app 回调以及参数
         /// Listen to open app callbacks and parameters via openUrl or handleOpenUrl
       });
+
+  /// 清除缓存
+  FlSharedLink().clearCache();
 }
 ```

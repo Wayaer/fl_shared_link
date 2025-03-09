@@ -39,6 +39,13 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 val uri = uriMap[call.arguments]
                 result.success(getRealFilePath(uri))
             }
+
+            "clearCache" -> {
+                intent = null
+                uriMap.clear()
+                result.success(true)
+            }
+
             else -> {
                 result.notImplemented()
             }
@@ -120,8 +127,10 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         } else when (uri.scheme) {
             ContentResolver.SCHEME_CONTENT -> //Android7.0之后的uri content:// URI
                 getFilePathFromContentUri(uri)
+
             ContentResolver.SCHEME_FILE -> //Android7.0之前的uri file://
                 uri.path?.let { File(it).absolutePath }
+
             else -> uri.path?.let { File(it).absolutePath }
         }
     }
@@ -143,7 +152,7 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         if (null != cursor) {
             if (cursor.moveToFirst()) {
                 val index: Int = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
-                if (index > -1 ) {
+                if (index > -1) {
                     val nameIndex: Int = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
                     val fileName: String = cursor.getString(nameIndex)
                     data = getPathFromInputStreamUri(uri, fileName)

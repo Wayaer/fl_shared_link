@@ -22,6 +22,44 @@ class FlSharedLink {
 
   final MethodChannel _channel = const MethodChannel('fl.shared.link');
 
+  /// 清除缓存
+  /// 支持 android ios
+  Future<bool> clearCache() async {
+    if (!_supportPlatform) return false;
+    return (await _channel.invokeMethod<bool>('clearCache')) ?? false;
+  }
+
+  /// 监听 获取接收的内容
+  /// app 首次启动 无法获取到数据，仅用于app进程没有被kill时 才会调用
+  /// 支持 android ios
+  void receiveHandler({
+    /// 监听 android 所有的Intent
+    FlSharedLinkAndroidReceiveDataModel? onIntent,
+
+    /// 监听 ios UniversalLink 启动 app
+    FlSharedLinkIOSUniversalLinkModel? onUniversalLink,
+
+    /// 监听 ios openUrl 和 handleOpenUrl 启动 app
+    /// 用 其他应用打开 分享 或 打开
+    FlSharedLinkIOSOpenUrlModel? onOpenUrl,
+  }) {
+    if (!_supportPlatform) return;
+    _channel.setMethodCallHandler((call) async {
+      switch (call.method) {
+        case 'onIntent':
+          onIntent?.call(AndroidIntentModel.fromMap(call.arguments as Map));
+          break;
+        case 'onOpenUrl':
+          onOpenUrl?.call(IOSOpenUrlModel.fromMap(call.arguments as Map));
+          break;
+        case 'onUniversalLink':
+          onUniversalLink
+              ?.call(IOSUniversalLinkModel.fromMap(call.arguments as Map));
+          break;
+      }
+    });
+  }
+
   /// ******* Android ******* ///
 
   /// 获取 所有 Android Intent 数据
@@ -72,46 +110,17 @@ class FlSharedLink {
     return await _channel.invokeMethod('getAbsolutePath', url);
   }
 
-  /// 当文件路径带有中文时候 需要进行转码
-  Future<String?> removingPercentEncodingWithIOS(String path) async {
+  /// 外部导入的 Uri 文件 拷贝 到当前 app
+  Future<String?> externalFileCopyWithIOS(String path) async {
     if (!_isIOS || path.isEmpty) return null;
-    return await _channel.invokeMethod('removingPercentEncoding', path);
-  }
-
-  /// 监听 获取接收的内容
-  /// app 首次启动 无法获取到数据，仅用于app进程没有被kill时 才会调用
-  void receiveHandler({
-    /// 监听 android 所有的Intent
-    FlSharedLinkAndroidReceiveDataModel? onIntent,
-
-    /// 监听 ios UniversalLink 启动 app
-    FlSharedLinkIOSUniversalLinkModel? onUniversalLink,
-
-    /// 监听 ios openUrl 和 handleOpenUrl 启动 app
-    /// 用 其他应用打开 分享 或 打开
-    FlSharedLinkIOSOpenUrlModel? onOpenUrl,
-  }) {
-    if (!_supportPlatform) return;
-    _channel.setMethodCallHandler((call) async {
-      switch (call.method) {
-        case 'onIntent':
-          onIntent?.call(AndroidIntentModel.fromMap(call.arguments as Map));
-          break;
-        case 'onOpenUrl':
-          onOpenUrl?.call(IOSOpenUrlModel.fromMap(call.arguments as Map));
-          break;
-        case 'onUniversalLink':
-          onUniversalLink
-              ?.call(IOSUniversalLinkModel.fromMap(call.arguments as Map));
-          break;
-      }
-    });
+    return await _channel.invokeMethod('externalFileCopy', path);
   }
 }
 
 class BaseReceiveData {
   BaseReceiveData.fromMap(Map<dynamic, dynamic> map)
       : url = map['url'] as String?,
+        id = map['id'] as String?,
         action = map['action'] as String?,
         scheme = map['scheme'] as String?;
 
@@ -126,15 +135,18 @@ class BaseReceiveData {
   /// scheme
   String? scheme;
 
+  /// uri id
+  /// 根据此 id 获取 uri 的真实路径
+  String? id;
+
   Map<String, dynamic> toMap() =>
-      {'url': url, 'action': action, 'scheme': scheme};
+      {'url': url, 'action': action, 'scheme': scheme, 'id': id};
 }
 
 class AndroidIntentModel extends BaseReceiveData {
   AndroidIntentModel.fromMap(super.map)
       : type = map['type'] as String?,
         userInfo = map['userInfo'] as String?,
-        id = map['id'] as String?,
         authority = map['authority'] as String?,
         extras = map['extras'] as Map<dynamic, dynamic>?,
         super.fromMap();
@@ -152,19 +164,14 @@ class AndroidIntentModel extends BaseReceiveData {
   /// authority
   String? authority;
 
-  /// uri id
-  /// 根据此 id 获取 uri 的真实路径
-  String? id;
-
   @override
-  Map<String, dynamic> toMap() => super.toMap()
-    ..addAll({
-      'type': type,
-      'userInfo': userInfo,
-      'authority': authority,
-      'extras': extras,
-      'id': id
-    });
+  Map<String, dynamic> toMap() => {
+        'type': type,
+        'userInfo': userInfo,
+        'authority': authority,
+        'extras': extras,
+        ...super.toMap()
+      };
 }
 
 class IOSUniversalLinkModel extends IOSOpenUrlModel {
@@ -180,7 +187,7 @@ class IOSUniversalLinkModel extends IOSOpenUrlModel {
 
   @override
   Map<String, dynamic> toMap() =>
-      super.toMap()..addAll({'title': title, 'userInfo': userInfo});
+      {'title': title, 'userInfo': userInfo, ...super.toMap()};
 }
 
 class IOSOpenUrlModel extends BaseReceiveData {
@@ -192,7 +199,7 @@ class IOSOpenUrlModel extends BaseReceiveData {
   Map<dynamic, dynamic>? extras;
 
   @override
-  Map<String, dynamic> toMap() => super.toMap()..addAll({'extras': extras});
+  Map<String, dynamic> toMap() => {'extras': extras, ...super.toMap()};
 }
 
 bool get _supportPlatform {
