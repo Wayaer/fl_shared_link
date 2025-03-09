@@ -28,7 +28,7 @@ public class FlSharedLinkPlugin: NSObject, FlutterPlugin {
         case "getOpenUrlMap":
             result(openUrlMap)
         case "externalFileCopy":
-            result(externalFileCopy(call.arguments as! String))
+            externalFileCopy(call.arguments as! String, result)
         case "getAbsolutePath":
             result(getAbsolutePath(call.arguments as! String))
         case "getLaunchingOptionsMap":
@@ -48,24 +48,29 @@ public class FlSharedLinkPlugin: NSObject, FlutterPlugin {
         }
     }
 
-    func externalFileCopy(_ id: String) -> String? {
-        let fileURL = uriMap[id]
-        if let url = fileURL {
+    func externalFileCopy(_ id: String, _ result: @escaping FlutterResult) {
+        if let sourceUrl = uriMap[id] {
             let fileManager = FileManager.default
-            let destinationURL = FileManager.default.temporaryDirectory.appendingPathComponent(url.lastPathComponent)
             do {
-                try fileManager.copyItem(at: url, to: destinationURL)
-                return destinationURL.absoluteString
+                let status = sourceUrl.startAccessingSecurityScopedResource()
+                if status {
+                    let targetURL = fileManager.temporaryDirectory.appendingPathComponent(sourceUrl.lastPathComponent)
+                    if fileManager.fileExists(atPath: targetURL.path) {
+                        try fileManager.removeItem(atPath: targetURL.path)
+                    }
+                    try fileManager.copyItem(at: sourceUrl, to: targetURL)
+                    result(targetURL.absoluteString)
+                    return
+                }
             } catch {
-                print("ExternalFileCopyWithIOS copying file: \(error)")
+                print("ExternalFileCopy error:\(error)")
             }
         }
-        return nil
+        result(nil)
     }
 
     public func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]) -> Void) -> Bool {
         let id = String(describing: userActivity.webpageURL?.hashValue ?? 0)
-        print("userActivity====\(id)")
         uriMap[id] = userActivity.webpageURL
         universalLinkMap = [
             "id": id,
@@ -81,7 +86,6 @@ public class FlSharedLinkPlugin: NSObject, FlutterPlugin {
 
     public func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         let id = String(describing: url.hashValue)
-        print("openUrl====\(id)")
         uriMap[id] = url
         openUrlMap = [
             "id": id,

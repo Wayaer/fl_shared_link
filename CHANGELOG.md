@@ -1,8 +1,10 @@
 ## 0.3.1
 
 * Removed `removingPercentEncodingWithIOS`
-* Added `externalFileCopyWithIOS`
+* Added `externalFileCopyWithIOS`,IOS supports copying external files directly to the current
+  sandbox temporary directory
 * Added `clearCache`
+* JDK changed to 17 on Android
 
 ## 0.3.0
 
