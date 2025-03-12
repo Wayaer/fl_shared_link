@@ -1,3 +1,7 @@
+## 0.3.2
+
+* Fix the issue where other plugins cannot obtain callback parameters on iOS
+
 ## 0.3.1
 
 * Removed `removingPercentEncodingWithIOS`
