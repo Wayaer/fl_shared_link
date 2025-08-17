@@ -1,3 +1,7 @@
+## 0.4.0
+
+* Supports HarmonyOS
+
 ## 0.3.2
 
 * Fix the issue where other plugins cannot obtain callback parameters on iOS
