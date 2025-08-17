@@ -3,15 +3,10 @@ import 'package:flutter/services.dart';
 
 part 'src/android.dart';
 
+part 'src/harmonyos.dart';
 part 'src/ios.dart';
 
-typedef FlSharedLinkAndroidReceiveDataModel = void Function(
-    AndroidIntentModel? data);
-
-typedef FlSharedLinkIOSUniversalLinkModel = void Function(
-    IOSUniversalLinkModel? data);
-
-typedef FlSharedLinkIOSOpenUrlModel = void Function(IOSOpenUrlModel? data);
+typedef FlSharedLinkReceiveDataModel<T> = void Function(T data);
 
 class FlSharedLink {
   factory FlSharedLink() => _singleton ??= FlSharedLink._();
@@ -20,10 +15,12 @@ class FlSharedLink {
 
   static FlSharedLink? _singleton;
 
+  static FlSharedLink get instance => FlSharedLink();
+
   final MethodChannel _channel = const MethodChannel('fl.shared.link');
 
   /// 清除缓存
-  /// 支持 android ios
+  /// 支持 android ios harmonyos
   Future<bool> clearCache() async {
     if (!_supportPlatform) return false;
     return (await _channel.invokeMethod<bool>('clearCache')) ?? false;
@@ -34,14 +31,17 @@ class FlSharedLink {
   /// 支持 android ios
   void receiveHandler({
     /// 监听 android 所有的Intent
-    FlSharedLinkAndroidReceiveDataModel? onIntent,
+    FlSharedLinkReceiveDataModel<AndroidIntentModel>? onIntent,
 
     /// 监听 ios UniversalLink 启动 app
-    FlSharedLinkIOSUniversalLinkModel? onUniversalLink,
+    FlSharedLinkReceiveDataModel<IOSUniversalLinkModel>? onUniversalLink,
 
     /// 监听 ios openUrl 和 handleOpenUrl 启动 app
     /// 用 其他应用打开 分享 或 打开
-    FlSharedLinkIOSOpenUrlModel? onOpenUrl,
+    FlSharedLinkReceiveDataModel<IOSOpenUrlModel>? onOpenUrl,
+
+    /// 监听 harmonyos 所有的 Want
+    FlSharedLinkReceiveDataModel<HarmonyOSNewWantModel>? onWant,
   }) {
     if (!_supportPlatform) return;
     _channel.setMethodCallHandler((call) async {
@@ -56,8 +56,30 @@ class FlSharedLink {
           onUniversalLink
               ?.call(IOSUniversalLinkModel.fromMap(call.arguments as Map));
           break;
+        case 'onWant':
+          onWant?.call(HarmonyOSNewWantModel.fromMap(call.arguments as Map));
+          break;
       }
     });
+  }
+
+  /// ******* HarmonyOS ******* ///
+  /// 获取 所有 HarmonyOS Want 数据
+  Future<HarmonyOSWantModel?> get wantWithHarmonyOS async {
+    if (!_isHarmonyOS) return null;
+    final data = await _channel.invokeMapMethod('getWant');
+    if (data != null) return HarmonyOSWantModel.fromMap(data);
+    return null;
+  }
+
+  /// 获取 所有 HarmonyOS SharedData 数据
+  Future<List<HarmonyOSSharedRecordModel>?> get wantSharedDataHarmonyOS async {
+    if (!_isHarmonyOS) return null;
+    final data = await _channel.invokeListMethod('getWantSharedData');
+    if (data != null) {
+      return data.map((e) => HarmonyOSSharedRecordModel.fromMap(e)).toList();
+    }
+    return null;
   }
 
   /// ******* Android ******* ///
@@ -143,70 +165,14 @@ class BaseReceiveData {
       {'url': url, 'action': action, 'scheme': scheme, 'id': id};
 }
 
-class AndroidIntentModel extends BaseReceiveData {
-  AndroidIntentModel.fromMap(super.map)
-      : type = map['type'] as String?,
-        userInfo = map['userInfo'] as String?,
-        authority = map['authority'] as String?,
-        extras = map['extras'] as Map<dynamic, dynamic>?,
-        super.fromMap();
-
-  /// mimeType
-  /// 部分 [AndroidMineType]
-  String? type;
-
-  /// extras
-  Map<dynamic, dynamic>? extras;
-
-  /// userInfo
-  String? userInfo;
-
-  /// authority
-  String? authority;
-
-  @override
-  Map<String, dynamic> toMap() => {
-        'type': type,
-        'userInfo': userInfo,
-        'authority': authority,
-        'extras': extras,
-        ...super.toMap()
-      };
-}
-
-class IOSUniversalLinkModel extends IOSOpenUrlModel {
-  IOSUniversalLinkModel.fromMap(super.map)
-      : title = map['title'] as String?,
-        userInfo = map['userInfo'] as Map<dynamic, dynamic>?,
-        super.fromMap();
-
-  /// title
-  String? title;
-
-  dynamic userInfo;
-
-  @override
-  Map<String, dynamic> toMap() =>
-      {'title': title, 'userInfo': userInfo, ...super.toMap()};
-}
-
-class IOSOpenUrlModel extends BaseReceiveData {
-  IOSOpenUrlModel.fromMap(super.map)
-      : extras = map['extras'] as Map<dynamic, dynamic>?,
-        super.fromMap();
-
-  /// 其他的数据
-  Map<dynamic, dynamic>? extras;
-
-  @override
-  Map<String, dynamic> toMap() => {'extras': extras, ...super.toMap()};
-}
 
 bool get _supportPlatform {
-  if (!kIsWeb && (_isAndroid || _isIOS)) return true;
+  if (!kIsWeb && (_isAndroid || _isIOS || _isHarmonyOS)) return true;
   debugPrint('Not support platform for $defaultTargetPlatform');
   return false;
 }
+
+bool get _isHarmonyOS => defaultTargetPlatform.name == 'ohos';
 
 bool get _isAndroid => defaultTargetPlatform == TargetPlatform.android;
 

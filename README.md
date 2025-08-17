@@ -186,3 +186,55 @@ void func() async {
   FlSharedLink().clearCache();
 }
 ```
+
+# HarmonyOS configuration items
+
+- [udt](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/uniform-data-type-list)
+
+```json5
+// src/main/module.json5
+{
+  "module": {
+    "abilities": [
+      {
+        "name": "EntryAbility",
+        "srcEntry": "./ets/entryability/EntryAbility.ets",
+        // ...
+        "skills": [
+          {
+            "entities": [
+              "entity.system.home"
+            ],
+            "actions": [
+              "action.system.home"
+            ]
+          },
+          {
+            "actions": [
+              // 必需，声明数据处理能力
+              "ohos.want.action.viewData",
+              "ohos.want.action.sendData"
+            ],
+            "uris": [
+              {
+                "scheme": "file",
+                // 目标应用在配置支持接收的数据类型时，需穷举支持的UTD
+                // https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/uniform-data-type-list
+                "utd": "general.entity",
+                // maxFileSupported对于归属指定类型的文件，标识一次支持接收的最大数量。默认为0，代表不支持此类文件的分享
+                "maxFileSupported": 1
+              },
+              {
+                "scheme": "file",
+                // https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/uniform-data-type-list
+                "utd": "general.object",
+                "maxFileSupported": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+```

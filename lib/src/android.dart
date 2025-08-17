@@ -1,5 +1,36 @@
 part of '../fl_shared_link.dart';
 
+class AndroidIntentModel extends BaseReceiveData {
+  AndroidIntentModel.fromMap(super.map)
+      : type = map['type'] as String?,
+        userInfo = map['userInfo'] as String?,
+        authority = map['authority'] as String?,
+        extras = map['extras'] as Map<dynamic, dynamic>?,
+        super.fromMap();
+
+  /// mimeType
+  /// 部分 [AndroidMineType]
+  String? type;
+
+  /// extras
+  Map<dynamic, dynamic>? extras;
+
+  /// userInfo
+  String? userInfo;
+
+  /// authority
+  String? authority;
+
+  @override
+  Map<String, dynamic> toMap() => {
+        'type': type,
+        'userInfo': userInfo,
+        'authority': authority,
+        'extras': extras,
+        ...super.toMap()
+      };
+}
+
 class AndroidAction {
   AndroidAction._();
 

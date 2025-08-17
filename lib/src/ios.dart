@@ -10,3 +10,31 @@ class IOSAction {
   /// NSUserActivityTypeBrowsingWeb 是通过浏览器域名打开app
   static const String browsingWeb = 'NSUserActivityTypeBrowsingWeb';
 }
+
+class IOSUniversalLinkModel extends IOSOpenUrlModel {
+  IOSUniversalLinkModel.fromMap(super.map)
+      : title = map['title'] as String?,
+        userInfo = map['userInfo'] as Map<dynamic, dynamic>?,
+        super.fromMap();
+
+  /// title
+  String? title;
+
+  dynamic userInfo;
+
+  @override
+  Map<String, dynamic> toMap() =>
+      {'title': title, 'userInfo': userInfo, ...super.toMap()};
+}
+
+class IOSOpenUrlModel extends BaseReceiveData {
+  IOSOpenUrlModel.fromMap(super.map)
+      : extras = map['extras'] as Map<dynamic, dynamic>?,
+        super.fromMap();
+
+  /// 其他的数据
+  Map<dynamic, dynamic>? extras;
+
+  @override
+  Map<String, dynamic> toMap() => {'extras': extras, ...super.toMap()};
+}

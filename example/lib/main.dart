@@ -6,6 +6,8 @@ bool get _isAndroid => defaultTargetPlatform == TargetPlatform.android;
 
 bool get _isIOS => defaultTargetPlatform == TargetPlatform.iOS;
 
+bool get _isHarmonyOS => defaultTargetPlatform.name == 'ohos';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MaterialApp(
@@ -26,9 +28,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  /// ios
   IOSUniversalLinkModel? universalLink;
-  IOSOpenUrlModel? openUrl;
   Map? launchingOptionsWithIOS;
+  IOSOpenUrlModel? openUrl;
+
+  /// harmonyos
+  HarmonyOSNewWantModel? newWantModel;
+  HarmonyOSWantModel? wantModel;
+  List<HarmonyOSSharedRecordModel>? sharedData;
+
+  /// android
   AndroidIntentModel? intent;
   String? realPath;
 
@@ -36,24 +46,32 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      FlSharedLink().receiveHandler(
+          onUniversalLink: (IOSUniversalLinkModel data) {
+        universalLink = data;
+        setState(() {});
+      }, onOpenUrl: (IOSOpenUrlModel data) {
+        openUrl = data;
+        setState(() {});
+      }, onIntent: (AndroidIntentModel data) {
+        intent = data;
+        setState(() {});
+      }, onWant: (HarmonyOSNewWantModel data) async {
+        newWantModel = data;
+        sharedData = await FlSharedLink().wantSharedDataHarmonyOS;
+        setState(() {});
+      });
       if (_isIOS) {
         universalLink = await FlSharedLink().universalLinkWithIOS;
         openUrl = await FlSharedLink().openUrlWithIOS;
         launchingOptionsWithIOS = await FlSharedLink().launchingOptionsWithIOS;
       }
       if (_isAndroid) intent = await FlSharedLink().intentWithAndroid;
+      if (_isHarmonyOS) {
+        wantModel = await FlSharedLink().wantWithHarmonyOS;
+        sharedData = await FlSharedLink().wantSharedDataHarmonyOS;
+      }
       setState(() {});
-      FlSharedLink().receiveHandler(
-          onUniversalLink: (IOSUniversalLinkModel? data) {
-        universalLink = data;
-        setState(() {});
-      }, onOpenUrl: (IOSOpenUrlModel? data) {
-        openUrl = data;
-        setState(() {});
-      }, onIntent: (AndroidIntentModel? data) {
-        intent = data;
-        setState(() {});
-      });
     });
   }
 
@@ -62,20 +80,20 @@ class _HomePageState extends State<HomePage> {
     List<Widget> children = [];
     if (_isAndroid) children = androidChildren;
     if (_isIOS) children = iosChildren;
-    children.add(ElevatedButton(
-        onPressed: () {
-          FlSharedLink().clearCache();
-        },
-        child: const Text('清除缓存')));
+    if (_isHarmonyOS) children = harmonyOSChildren;
     return Column(
+        spacing: 12,
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: children);
+        children: [
+          ...children,
+          ElevatedButton(
+              onPressed: FlSharedLink().clearCache, child: const Text('清除缓存'))
+        ]);
   }
 
-  List<Widget> get androidChildren => [
-        const Text('Android Intent'),
-        const SizedBox(height: 10),
+  List<Widget> get harmonyOSChildren => [
+        const Text('HarmonyOS Want'),
         Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
@@ -84,12 +102,45 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.grey.withValues(alpha: 0.3)),
-            child: Text('${intent?.toMap()}')),
-        const SizedBox(height: 10),
+            child: Text('${wantModel?.toMap()}', textAlign: TextAlign.start)),
+        const Text('HarmonyOS NewWant'),
+        Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.all(12),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey.withValues(alpha: 0.3)),
+            child:
+                Text('${newWantModel?.toMap()}', textAlign: TextAlign.start)),
+        const Text('HarmonyOS SharedData'),
+        Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.all(12),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey.withValues(alpha: 0.3)),
+            child: Text(
+                '${sharedData?.map((e) => e.toMap()).toList().join('\n')}',
+                textAlign: TextAlign.start)),
+      ];
+  List<Widget> get androidChildren => [
+        const Text('Android Intent'),
+        Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.all(12),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey.withValues(alpha: 0.3)),
+            child: Text('${intent?.toMap()}', textAlign: TextAlign.start)),
         ElevatedButton(
             onPressed: getRealFilePathWithAndroid,
             child: const Text('Android uri转真实文件地址 兼容微信QQ')),
-        const SizedBox(height: 10),
         Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
@@ -98,8 +149,7 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.grey.withValues(alpha: 0.3)),
-            child: Text(realPath.toString())),
-        const SizedBox(height: 30),
+            child: Text(realPath.toString(), textAlign: TextAlign.start)),
       ];
 
   void getRealFilePathWithAndroid() async {
@@ -111,7 +161,6 @@ class _HomePageState extends State<HomePage> {
 
   List<Widget> get iosChildren => [
         const Text('IOS Launching Options'),
-        const SizedBox(height: 10),
         Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
@@ -120,10 +169,9 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.grey.withValues(alpha: 0.3)),
-            child: Text('$launchingOptionsWithIOS')),
-        const SizedBox(height: 10),
+            child:
+                Text('$launchingOptionsWithIOS', textAlign: TextAlign.start)),
         const Text('IOS UniversalLink'),
-        const SizedBox(height: 10),
         Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
@@ -132,10 +180,9 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.grey.withValues(alpha: 0.3)),
-            child: Text('${universalLink?.toMap()}')),
-        const SizedBox(height: 10),
+            child:
+                Text('${universalLink?.toMap()}', textAlign: TextAlign.start)),
         const Text('IOS openUrl'),
-        const SizedBox(height: 10),
         Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
@@ -144,7 +191,6 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.grey.withValues(alpha: 0.3)),
-            child: Text('${openUrl?.toMap()}')),
-        const SizedBox(height: 30),
+            child: Text('${openUrl?.toMap()}', textAlign: TextAlign.start)),
       ];
 }
