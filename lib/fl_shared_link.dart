@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 part 'src/android.dart';
-
 part 'src/harmonyos.dart';
 part 'src/ios.dart';
 
@@ -73,13 +72,28 @@ class FlSharedLink {
   }
 
   /// 获取 所有 HarmonyOS SharedData 数据
-  Future<List<HarmonyOSSharedRecordModel>?> get wantSharedDataHarmonyOS async {
+  Future<List<HarmonyOSSharedRecordModel>?>
+      get wantSharedDataWithHarmonyOS async {
     if (!_isHarmonyOS) return null;
     final data = await _channel.invokeListMethod('getWantSharedData');
     if (data != null) {
       return data.map((e) => HarmonyOSSharedRecordModel.fromMap(e)).toList();
     }
     return null;
+  }
+
+  /// 获取 Path to Uri  HarmonyOS
+  Future<String?> getUriFromPathWithHarmonyOS(String path) async {
+    if (!_isHarmonyOS || path.isEmpty) return null;
+    return await _channel
+        .invokeMethod<String>('getUriFromPath', {'path': path});
+  }
+
+  /// 通过 Uri 复制文件到 本地沙盒路径
+  Future<String?> uriCopyToCachePathWithHarmonyOS(String uri) async {
+    if (!_isHarmonyOS || uri.isEmpty) return null;
+    return (await _channel
+        .invokeMethod<String>('uriCopyToCachePath', {'uri': uri}));
   }
 
   /// ******* Android ******* ///

@@ -37,6 +37,7 @@ class _HomePageState extends State<HomePage> {
   HarmonyOSNewWantModel? newWantModel;
   HarmonyOSWantModel? wantModel;
   List<HarmonyOSSharedRecordModel>? sharedData;
+  String? newPath;
 
   /// android
   AndroidIntentModel? intent;
@@ -58,7 +59,7 @@ class _HomePageState extends State<HomePage> {
         setState(() {});
       }, onWant: (HarmonyOSNewWantModel data) async {
         newWantModel = data;
-        sharedData = await FlSharedLink().wantSharedDataHarmonyOS;
+        sharedData = await FlSharedLink().wantSharedDataWithHarmonyOS;
         setState(() {});
       });
       if (_isIOS) {
@@ -69,7 +70,7 @@ class _HomePageState extends State<HomePage> {
       if (_isAndroid) intent = await FlSharedLink().intentWithAndroid;
       if (_isHarmonyOS) {
         wantModel = await FlSharedLink().wantWithHarmonyOS;
-        sharedData = await FlSharedLink().wantSharedDataHarmonyOS;
+        sharedData = await FlSharedLink().wantSharedDataWithHarmonyOS;
       }
       setState(() {});
     });
@@ -126,7 +127,29 @@ class _HomePageState extends State<HomePage> {
             child: Text(
                 '${sharedData?.map((e) => e.toMap()).toList().join('\n')}',
                 textAlign: TextAlign.start)),
+        ElevatedButton(
+            onPressed: uriCopyToCachePathWithHarmonyOS,
+            child: const Text('HarmonyOS uri转本地路径')),
+        Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.all(12),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey.withValues(alpha: 0.3)),
+            child: Text('$newPath', textAlign: TextAlign.start)),
       ];
+
+  void uriCopyToCachePathWithHarmonyOS() async {
+    final data = sharedData?.firstOrNull;
+    if (data != null) {
+      newPath =
+          await FlSharedLink().uriCopyToCachePathWithHarmonyOS(data.uri ?? '');
+      setState(() {});
+    }
+  }
+
   List<Widget> get androidChildren => [
         const Text('Android Intent'),
         Container(
@@ -149,7 +172,7 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.grey.withValues(alpha: 0.3)),
-            child: Text(realPath.toString(), textAlign: TextAlign.start)),
+            child: Text('$realPath', textAlign: TextAlign.start)),
       ];
 
   void getRealFilePathWithAndroid() async {

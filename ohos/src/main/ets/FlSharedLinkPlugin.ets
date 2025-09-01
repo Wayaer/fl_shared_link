@@ -15,6 +15,8 @@ import AbilityConstant from '@ohos.app.ability.AbilityConstant';
 import { systemShare } from '@kit.ShareKit';
 import json from '@ohos.util.json';
 import { deviceInfo } from '@kit.BasicServicesKit';
+import { fileUri } from '@kit.CoreFileKit';
+import fs from '@ohos.file.fs';
 
 const TAG = "FlSharedLinkPlugin"
 
@@ -22,6 +24,7 @@ const TAG = "FlSharedLinkPlugin"
 export default class FlSharedLinkPlugin implements FlutterPlugin, MethodCallHandler, AbilityAware, NewWantListener {
   private channel: MethodChannel | null = null;
   private abilityPluginBinding: AbilityPluginBinding | null = null;
+  private pluginBinding: FlutterPluginBinding | null = null;
   private lastLaunchParams: AbilityConstant.LaunchParam | null = null;
   private lastWant: Want | null = null
 
@@ -30,6 +33,7 @@ export default class FlSharedLinkPlugin implements FlutterPlugin, MethodCallHand
   }
 
   onAttachedToEngine(binding: FlutterPluginBinding): void {
+    this.pluginBinding = binding
     this.channel = new MethodChannel(binding.getBinaryMessenger(), "fl.shared.link");
     this.channel.setMethodCallHandler(this)
   }
@@ -63,6 +67,14 @@ export default class FlSharedLinkPlugin implements FlutterPlugin, MethodCallHand
           result.success(value)
         })
         break;
+      case 'getUriFromPath':
+        result.success(fileUri.getUriFromPath(call.argument('path')))
+        break;
+      case 'uriCopyToCachePath':
+        this.uriCopyToPath(call.argument('uri')).then((value) => {
+          result.success(value)
+        })
+        break;
       case 'clearCache':
         this.lastWant = null
         this.lastLaunchParams = null
@@ -71,6 +83,31 @@ export default class FlSharedLinkPlugin implements FlutterPlugin, MethodCallHand
       default:
         result.notImplemented()
     }
+  }
+
+  async uriCopyToPath(uri: string): Promise<string | null> {
+    if (uri == undefined || this.pluginBinding == null) {
+      return null
+    }
+    try {
+      const uris = uri.split('/')
+      if (uris.length == 0) {
+        return null
+      }
+      const fileName = uris[uris.length-1]
+      const newPath = this.pluginBinding.getApplicationContext().cacheDir + '/' + fileName
+      const newUri = fileUri.getUriFromPath(newPath)
+      let file = fs.openSync(uri, fs.OpenMode.READ_ONLY)
+      let newFile = fs.openSync(newUri, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE)
+      fs.createRandomAccessFileSync(newFile, fs.OpenMode.CREATE);
+      fs.copyFileSync(file.fd, newFile.fd)
+      fs.closeSync(file);
+      fs.closeSync(newFile);
+      return newPath
+    } catch (e) {
+      Log.d(TAG, 'uriCopyToPath error:' + json.stringify(e))
+    }
+    return null
   }
 
   async getWantSharedData(): Promise<Array<Record<string, object | undefined>> | null> {
