@@ -105,7 +105,7 @@ export default class FlSharedLinkPlugin implements FlutterPlugin, MethodCallHand
       fs.closeSync(newFile);
       return newPath
     } catch (e) {
-      Log.d(TAG, 'uriCopyToPath error:' + json.stringify(e))
+      Log.e(TAG, 'uriCopyToPath error:' + json.stringify(e))
     }
     return null
   }
@@ -122,7 +122,7 @@ export default class FlSharedLinkPlugin implements FlutterPlugin, MethodCallHand
       })
       return records;
     } catch (e) {
-      Log.d(TAG, 'getWantSharedData error: ' + json.stringify(e))
+      Log.e(TAG, 'getWantSharedData error: ' + json.stringify(e))
     }
     return null
   }

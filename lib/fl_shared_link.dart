@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 part 'src/android.dart';
+
 part 'src/harmonyos.dart';
+
 part 'src/ios.dart';
 
 typedef FlSharedLinkReceiveDataModel<T> = void Function(T data);
@@ -52,8 +54,7 @@ class FlSharedLink {
           onOpenUrl?.call(IOSOpenUrlModel.fromMap(call.arguments as Map));
           break;
         case 'onUniversalLink':
-          onUniversalLink
-              ?.call(IOSUniversalLinkModel.fromMap(call.arguments as Map));
+          onUniversalLink?.call(IOSUniversalLinkModel.fromMap(call.arguments as Map));
           break;
         case 'onWant':
           onWant?.call(HarmonyOSNewWantModel.fromMap(call.arguments as Map));
@@ -72,8 +73,7 @@ class FlSharedLink {
   }
 
   /// 获取 所有 HarmonyOS SharedData 数据
-  Future<List<HarmonyOSSharedRecordModel>?>
-      get wantSharedDataWithHarmonyOS async {
+  Future<List<HarmonyOSSharedRecordModel>?> get wantSharedDataWithHarmonyOS async {
     if (!_isHarmonyOS) return null;
     final data = await _channel.invokeListMethod('getWantSharedData');
     if (data != null) {
@@ -85,15 +85,13 @@ class FlSharedLink {
   /// 获取 Path to Uri  HarmonyOS
   Future<String?> getUriFromPathWithHarmonyOS(String path) async {
     if (!_isHarmonyOS || path.isEmpty) return null;
-    return await _channel
-        .invokeMethod<String>('getUriFromPath', {'path': path});
+    return await _channel.invokeMethod<String>('getUriFromPath', {'path': path});
   }
 
   /// 通过 Uri 复制文件到 本地沙盒路径
   Future<String?> uriCopyToCachePathWithHarmonyOS(String uri) async {
     if (!_isHarmonyOS || uri.isEmpty) return null;
-    return (await _channel
-        .invokeMethod<String>('uriCopyToCachePath', {'uri': uri}));
+    return (await _channel.invokeMethod<String>('uriCopyToCachePath', {'uri': uri}));
   }
 
   /// ******* Android ******* ///
@@ -110,8 +108,7 @@ class FlSharedLink {
   /// 兼容微信和QQ
   Future<String?> getRealFilePathWithAndroid(String id) async {
     if (!_isAndroid || id.isEmpty) return null;
-    final data = await _channel.invokeMethod<String>(
-        'getRealFilePathCompatibleWXQQ', id);
+    final data = await _channel.invokeMethod<String>('getRealFilePathWithAndroid', id);
     return data;
   }
 
@@ -175,10 +172,8 @@ class BaseReceiveData {
   /// 根据此 id 获取 uri 的真实路径
   String? id;
 
-  Map<String, dynamic> toMap() =>
-      {'url': url, 'action': action, 'scheme': scheme, 'id': id};
+  Map<String, dynamic> toMap() => {'url': url, 'action': action, 'scheme': scheme, 'id': id};
 }
-
 
 bool get _supportPlatform {
   if (!kIsWeb && (_isAndroid || _isIOS || _isHarmonyOS)) return true;

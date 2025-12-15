@@ -1,3 +1,7 @@
+## 0.4.2
+
+* Add error log output
+
 ## 0.4.1
 
 * Supports HarmonyOS

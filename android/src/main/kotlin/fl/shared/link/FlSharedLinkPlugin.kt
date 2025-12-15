@@ -7,6 +7,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -26,6 +27,10 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private var intent: Intent? = null
     private var uriMap = HashMap<String, Uri>()
 
+    companion object {
+        private val TAG: String = "FlSharedLinkPlugin"
+    }
+
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "fl.shared.link")
         channel.setMethodCallHandler(this)
@@ -35,7 +40,7 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "getIntent" -> result.success(intent?.map)
-            "getRealFilePathCompatibleWXQQ" -> {
+            "getRealFilePathWithAndroid" -> {
                 val uri = uriMap[call.arguments]
                 result.success(getRealFilePath(uri))
             }
@@ -82,10 +87,11 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         channel.invokeMethod("onIntent", this.intent?.map)
     }
 
-    private var onNewIntent: PluginRegistry.NewIntentListener = PluginRegistry.NewIntentListener { intent ->
-        handlerIntent(intent)
-        true
-    }
+    private var onNewIntent: PluginRegistry.NewIntentListener =
+        PluginRegistry.NewIntentListener { intent ->
+            handlerIntent(intent)
+            true
+        }
 
 
     private val Intent.map: Map<String, Any?>
@@ -177,7 +183,8 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 inputStream = context.contentResolver.openInputStream(uri)
                 val file: File? = createTemporalFileFrom(inputStream, fileName)
                 filePath = file?.path
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e(TAG, "getRealFilePathWithAndroid: ${e.message}")
             } finally {
                 inputStream?.close()
             }
@@ -199,11 +206,7 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 outputStream.write(buffer, 0, read)
             }
             outputStream.flush()
-            try {
-                outputStream.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
+            outputStream.close()
         }
         return targetFile
     }
