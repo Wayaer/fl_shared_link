@@ -10,13 +10,13 @@ part 'src/ios.dart';
 typedef FlSharedLinkReceiveDataModel<T> = void Function(T data);
 
 class FlSharedLink {
-  factory FlSharedLink() => _singleton ??= FlSharedLink._();
+  factory FlSharedLink() => _instance;
 
   FlSharedLink._();
 
-  static FlSharedLink? _singleton;
+  static final FlSharedLink _instance = FlSharedLink._();
 
-  static FlSharedLink get instance => FlSharedLink();
+  static FlSharedLink get instance => _instance;
 
   final MethodChannel _channel = const MethodChannel('fl.shared.link');
 
