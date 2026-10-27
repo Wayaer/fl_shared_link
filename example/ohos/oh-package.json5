@@ -1,8 +1,8 @@
 {
-  "modelVersion": "5.0.0",
+  "modelVersion": "5.1.0",
   "name": "FlSharedLink",
   "version": "1.0.0",
-  "description": "Please describe the basic information.",
+  "description": "FlSharedLink 示例应用。",
   "main": "",
   "author": "",
   "license": "",

@@ -1,11 +1,21 @@
 name: fl_shared_link
-description: Gets parameters when the app is opened, and listens to be opened
-version: 0.4.3
+description: Receive links, files and share intents when your Flutter app is opened on Android, iOS, macOS and HarmonyOS.
+version: 0.5.0
+homepage: https://github.com/Wayaer/fl_shared_link
 repository: https://github.com/Wayaer/fl_shared_link.git
+issue_tracker: https://github.com/Wayaer/fl_shared_link/issues
+
+topics:
+  - flutter
+  - plugin
+  - sharing
+  - deep-linking
+  - harmonyos
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
-  flutter: '>=3.27.0'
+  # iOS UIScene 插件生命周期（FlutterSceneLifeCycleDelegate）需要 Flutter 3.41+。
+  flutter: '>=3.41.0'
 
 dependencies:
   flutter:
@@ -20,7 +30,12 @@ flutter:
       android:
         package: fl.shared.link
         pluginClass: FlSharedLinkPlugin
+      # iOS 与 macOS 共享 darwin/ 下的同一份原生实现。
       ios:
         pluginClass: FlSharedLinkPlugin
+        sharedDarwinSource: true
+      macos:
+        pluginClass: FlSharedLinkPlugin
+        sharedDarwinSource: true
       ohos:
         pluginClass: FlSharedLinkPlugin

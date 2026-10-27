@@ -1,1 +1,3 @@
-<manifest package="fl.shared.link" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="fl.shared.link">
+</manifest>

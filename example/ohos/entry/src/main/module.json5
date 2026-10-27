@@ -1,3 +1,4 @@
+
 {
   "module": {
     "name": "entry",
@@ -37,16 +38,21 @@
             ],
             "uris": [
               {
-                "scheme": "media",
-                // 目标应用在配置支持接收的数据类型时，需穷举支持的UTD
+                "scheme": "file",
+                // 目标应用在配置支持接收的数据类型时，需穷举支持的 UTD
+                // https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/uniform-data-type-list
                 "utd": "general.media",
-                // maxFileSupported对于归属指定类型的文件，标识一次支持接收的最大数量。默认为0，代表不支持此类文件的分享
+                // maxFileSupported 表示一次最多接收的文件数量，0 表示不支持该类文件
                 "maxFileSupported": 3,
               },
               {
-                "scheme": "media",
+                "scheme": "file",
                 "utd": "general.object",
                 "maxFileSupported": 3
+              },
+              {
+                // 自定义 URL Scheme 示例：flsharedlink://open
+                "scheme": "flsharedlink"
               }
             ]
           }

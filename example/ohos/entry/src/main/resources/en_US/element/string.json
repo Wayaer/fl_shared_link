@@ -2,11 +2,11 @@
   "string": [
     {
       "name": "module_desc",
-      "value": "module description"
+      "value": "FlSharedLink example app"
     },
     {
       "name": "EntryAbility_desc",
-      "value": "description"
+      "value": "Example ability for receiving share and open events"
     },
     {
       "name": "EntryAbility_label",

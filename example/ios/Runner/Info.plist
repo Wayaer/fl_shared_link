@@ -12,7 +12,7 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>FlSharedLink</string>
+			<string>FlSharedLink Document</string>
 			<key>LSHandlerRank</key>
 			<string>Default</string>
 			<key>LSItemContentTypes</key>
@@ -46,10 +46,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string></string>
+			<string>fl.shared.link.example</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>FlSharedLink</string>
+				<string>flsharedlink</string>
 			</array>
 		</dict>
 	</array>
@@ -59,6 +59,29 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<string>No</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>用于演示从相册资源标识符解析文件真实路径。</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>flutter</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>
@@ -80,7 +103,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
 </dict>
 </plist>

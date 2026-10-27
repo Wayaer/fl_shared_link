@@ -200,8 +200,11 @@ enum HarmonyOSLaunchLastExitReason {
   }
 }
 
+/// HarmonyOS 热启动（`onNewWant`）数据模型。
+///
+/// 包含本次唤起应用的 `Want` 信息以及系统提供的启动参数。
 class HarmonyOSNewWantModel {
-  /// 要启动的应用的Want信息。
+  /// 要启动的应用的 `Want` 信息。
   final HarmonyOSWantModel? want;
 
   /// 启动参数。
@@ -209,16 +212,11 @@ class HarmonyOSNewWantModel {
 
   HarmonyOSNewWantModel({this.want, this.launchParams});
 
-  factory HarmonyOSNewWantModel.fromMap(Map<dynamic, dynamic> map) =>
-      HarmonyOSNewWantModel(
-          want: map['want'] == null
-              ? null
-              : HarmonyOSWantModel.fromMap(
-                  map['want'] as Map<dynamic, dynamic>),
-          launchParams: map['launchParams'] == null
-              ? null
-              : HarmonyOSLaunchParamsModel.fromMap(
-                  map['launchParams'] as Map<dynamic, dynamic>));
+  factory HarmonyOSNewWantModel.fromMap(Map<dynamic, dynamic> map) => HarmonyOSNewWantModel(
+      want: map['want'] == null ? null : HarmonyOSWantModel.fromMap(map['want'] as Map<dynamic, dynamic>),
+      launchParams: map['launchParams'] == null
+          ? null
+          : HarmonyOSLaunchParamsModel.fromMap(map['launchParams'] as Map<dynamic, dynamic>));
 
   Map<String, dynamic> toMap() => {
         'want': want?.toMap(),
@@ -226,20 +224,23 @@ class HarmonyOSNewWantModel {
       };
 }
 
+/// HarmonyOS 启动参数模型，对应 `AbilityConstant.LaunchParam`。
+///
+/// 用于描述本次启动的原因，以及上一次应用退出的原因与详情。
 class HarmonyOSLaunchParamsModel {
   /// 启动原因。
   final HarmonyOSLaunchReason? launchReason;
 
-  /// 启动原因。
+  /// 启动原因的补充说明（API 18 及以上可用）。
   final String? launchReasonMessage;
 
-  /// 上次退出原因。
+  /// 上一次的退出原因。
   final HarmonyOSLaunchLastExitReason? lastExitReason;
 
-  /// 上次退出原因。
+  /// 上一次退出原因的补充说明。
   final String? lastExitMessage;
 
-  /// 上次退出详情。
+  /// 上一次退出的详细信息（API 18 及以上可用）。
   final HarmonyOSLaunchLastExitDetailInfoModel? lastExitDetailInfo;
 
   HarmonyOSLaunchParamsModel({
@@ -250,18 +251,14 @@ class HarmonyOSLaunchParamsModel {
     this.lastExitDetailInfo,
   });
 
-  factory HarmonyOSLaunchParamsModel.fromMap(Map<dynamic, dynamic> map) =>
-      HarmonyOSLaunchParamsModel(
-        launchReason:
-            HarmonyOSLaunchReason.fromInt(map['launchReason'] as num? ?? 0),
+  factory HarmonyOSLaunchParamsModel.fromMap(Map<dynamic, dynamic> map) => HarmonyOSLaunchParamsModel(
+        launchReason: HarmonyOSLaunchReason.fromInt(map['launchReason'] as num? ?? 0),
         launchReasonMessage: map['launchReasonMessage'] as String?,
-        lastExitReason: HarmonyOSLaunchLastExitReason.fromInt(
-            map['lastExitReason'] as num? ?? 0),
+        lastExitReason: HarmonyOSLaunchLastExitReason.fromInt(map['lastExitReason'] as num? ?? 0),
         lastExitMessage: map['lastExitMessage'] as String?,
         lastExitDetailInfo: map['lastExitDetailInfo'] == null
             ? null
-            : HarmonyOSLaunchLastExitDetailInfoModel.fromMap(
-                map['lastExitDetailInfo'] as Map<dynamic, dynamic>),
+            : HarmonyOSLaunchLastExitDetailInfoModel.fromMap(map['lastExitDetailInfo'] as Map<dynamic, dynamic>),
       );
 
   Map<String, dynamic> toMap() => {
@@ -273,6 +270,10 @@ class HarmonyOSLaunchParamsModel {
       };
 }
 
+/// HarmonyOS `Want` 数据模型。
+///
+/// 对应系统 `@ohos.app.ability.Want`，描述一次拉起 Ability 的请求，
+/// 常用于判断分享来源、目标 Ability 以及携带的 URI / MIME 类型。
 class HarmonyOSWantModel {
   /// 应用包名。
   final String? bundleName;
@@ -326,14 +327,32 @@ class HarmonyOSWantModel {
       };
 }
 
+/// HarmonyOS 上一次退出详情模型。
+///
+/// 对应 `AbilityConstant.LastExitDetailInfo`，用于排查应用异常退出。
 class HarmonyOSLaunchLastExitDetailInfoModel {
+  /// 进程 ID。
   final num? pid;
+
+  /// 进程名称。
   final String? processName;
+
+  /// 用户 ID。
   final num? uid;
+
+  /// 退出子原因。
   final num? exitSubReason;
+
+  /// 退出信息。
   final String? exitMsg;
+
+  /// 常驻内存大小（RSS，单位 KB）。
   final num? rss;
+
+  /// 实际使用物理内存大小（PSS，单位 KB）。
   final num? pss;
+
+  /// 退出时间戳。
   final num? timestamp;
 
   HarmonyOSLaunchLastExitDetailInfoModel.fromMap(Map<dynamic, dynamic> map)

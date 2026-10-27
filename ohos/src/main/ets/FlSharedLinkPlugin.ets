@@ -20,7 +20,12 @@ import fs from '@ohos.file.fs';
 
 const TAG = "FlSharedLinkPlugin"
 
-/** FlSharedLinkPlugin **/
+/**
+ * HarmonyOS 端插件实现。
+ *
+ * 负责记录应用启动 / 热启动时的 `Want` 与 `LaunchParam`，
+ * 并提供分享数据（SharedData）读取、URI 转换与文件拷贝能力。
+ */
 export default class FlSharedLinkPlugin implements FlutterPlugin, MethodCallHandler, AbilityAware, NewWantListener {
   private channel: MethodChannel | null = null;
   private abilityPluginBinding: AbilityPluginBinding | null = null;
@@ -85,6 +90,12 @@ export default class FlSharedLinkPlugin implements FlutterPlugin, MethodCallHand
     }
   }
 
+  /**
+   * 将外部 URI 指向的文件拷贝到应用缓存目录。
+   *
+   * @param uri 外部分享传入的 URI
+   * @returns 拷贝后的本地绝对路径，失败时返回 null
+   */
   async uriCopyToPath(uri: string): Promise<string | null> {
     if (uri == undefined || this.pluginBinding == null) {
       return null
@@ -110,6 +121,11 @@ export default class FlSharedLinkPlugin implements FlutterPlugin, MethodCallHand
     return null
   }
 
+  /**
+   * 读取当前 Want 携带的分享数据。
+   *
+   * @returns 分享记录数组，没有数据或读取失败时返回 null
+   */
   async getWantSharedData(): Promise<Array<Record<string, object | undefined>> | null> {
     if (this.lastWant == null) {
       return null;
@@ -127,6 +143,9 @@ export default class FlSharedLinkPlugin implements FlutterPlugin, MethodCallHand
     return null
   }
 
+  /**
+   * 热启动回调：记录新的 Want 并通知 Flutter 侧。
+   */
   onNewWant(want: Want, launchParams: AbilityConstant.LaunchParam): void {
     this.lastLaunchParams = launchParams
     this.handleWant(want)
