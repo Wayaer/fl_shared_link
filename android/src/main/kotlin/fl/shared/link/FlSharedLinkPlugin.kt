@@ -18,7 +18,14 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry
 import java.io.*
 
-/** FlSharedLinkPlugin */
+/**
+ * Android 端插件实现。
+ *
+ * 负责：
+ * - 记录启动 Intent（分享、打开文件、URL Scheme 等）；
+ * - 监听后续 `onNewIntent` 事件并回传给 Flutter；
+ * - 将 `content://` URI 指向的文件拷贝到应用缓存目录，供 Dart 侧读取真实路径。
+ */
 class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private lateinit var channel: MethodChannel
@@ -60,6 +67,7 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         this.binding = binding
         binding.addOnNewIntentListener(onNewIntent)
+        // 冷启动时 Activity 已携带 Intent，这里主动记录一次。
         binding.activity.intent?.let { handlerIntent(it) }
     }
 
@@ -82,6 +90,11 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         channel.setMethodCallHandler(null)
     }
 
+    /**
+     * 记录 Intent 并通知 Flutter 侧。
+     *
+     * [Intent.map] 中会同步保存 URI，供后续按 id 解析真实文件路径。
+     */
     private fun handlerIntent(intent: Intent) {
         this.intent = intent
         channel.invokeMethod("onIntent", this.intent?.map)
@@ -94,6 +107,12 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
 
+    /**
+     * 将 Intent 转换为 Dart 侧可读的 Map。
+     *
+     * - `data` 为空时会尝试读取 `Intent.EXTRA_STREAM`，兼容分享文件的场景；
+     * - `id` 为 URI 的哈希值，用于后续 [getRealFilePath] 查找。
+     */
     private val Intent.map: Map<String, Any?>
         get() {
             val map = HashMap<String, Any?>()
@@ -127,6 +146,12 @@ class FlSharedLinkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
 
+    /**
+     * 将外部 URI 转换为应用内可读的绝对路径。
+     *
+     * - `content://`：拷贝到应用缓存目录后返回本地路径；
+     * - `file://` 或普通路径：直接返回绝对路径。
+     */
     private fun getRealFilePath(uri: Uri?): String? {
         return if (uri == null) {
             null

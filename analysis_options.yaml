@@ -1,1 +1,15 @@
+formatter:
+  page_width: 120
+
+linter:
+  rules:
+    always_use_package_imports: true
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - darwin/**
+    - ohos/**
+
 include: package:flutter_lints/flutter.yaml

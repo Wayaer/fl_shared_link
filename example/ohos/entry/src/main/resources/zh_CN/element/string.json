@@ -2,11 +2,11 @@
   "string": [
     {
       "name": "module_desc",
-      "value": "模块描述"
+      "value": "FlSharedLink 示例应用"
     },
     {
       "name": "EntryAbility_desc",
-      "value": "description"
+      "value": "接收分享与打开事件的示例 Ability"
     },
     {
       "name": "EntryAbility_label",
